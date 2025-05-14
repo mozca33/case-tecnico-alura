@@ -18,22 +18,20 @@ public class TaskService {
     @Autowired
     private CourseRepository courseRepository;
 
-    public TaskDTO createTask(TaskDTO taskDTO) {
-        switch (taskDTO.type()) {
+    public Task createTask(Task task) {
+        switch (task.getType()) {
             case OPEN_TEXT:
-                return createOpenTextTask(taskDTO);
+                return createOpenTextTask(task);
             default:
                 throw new RuntimeException("Unknown task type.");
         }
     }
 
-    public TaskDTO createOpenTextTask(TaskDTO taskDTO) {
-        Task task = TaskMapper.toEntity(taskDTO);
+    public Task createOpenTextTask(Task task) {
         validateTask(task);
-
         taskRepository.updateTaskOrderForInsert(task.getCourseId(), task.getOrder());
 
-        return TaskMapper.toDTO(taskRepository.save(task));
+        return taskRepository.save(task);
     }
 
     private void validateTask(Task newTask) {

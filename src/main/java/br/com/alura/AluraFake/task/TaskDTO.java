@@ -13,4 +13,8 @@ public record TaskDTO(
         Type type) {
     public TaskDTO {
     }
+
+    public TaskDTO withType(Type newType) {
+        return new TaskDTO(this.id, this.courseId, this.statement, this.order, newType);
+    }
 }
