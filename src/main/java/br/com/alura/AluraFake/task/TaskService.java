@@ -3,7 +3,6 @@ package br.com.alura.AluraFake.task;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
-import br.com.alura.AluraFake.course.CourseRepository;
 import br.com.alura.AluraFake.course.CourseValidator;
 import br.com.alura.AluraFake.task.exceptions.TaskException;
 import jakarta.transaction.Transactional;
@@ -88,7 +87,6 @@ public class TaskService {
     private void updateExistingTask(Task existingTask, Task task) {
         existingTask.setStatement(task.getStatement());
         existingTask.setOrder(task.getOrder());
-        existingTask.setType(task.getType());
         existingTask.setCourseId(task.getCourseId());
     }
 
