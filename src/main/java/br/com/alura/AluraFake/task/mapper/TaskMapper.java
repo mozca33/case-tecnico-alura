@@ -1,4 +1,7 @@
-package br.com.alura.AluraFake.task;
+package br.com.alura.AluraFake.task.mapper;
+
+import br.com.alura.AluraFake.task.Task;
+import br.com.alura.AluraFake.task.dto.TaskDTO;
 
 public class TaskMapper {
     public static Task toEntity(TaskDTO taskDTO) {

@@ -23,15 +23,17 @@ public class TaskValidator {
 
     public void validateForCreate(Task newTask) {
         validateCourseIsInBuildingStatus(newTask.getCourseId());
+        validateOrderSequence(newTask.getCourseId(), newTask.getOrder());
         validateUniqueStatementForCreate(newTask);
     }
 
     public void validateForUpdate(Task newTask) {
         validateCourseIsInBuildingStatus(newTask.getCourseId());
+        validateOrderSequence(newTask.getCourseId(), newTask.getOrder());
         validateUniqueStatementForUpdate(newTask);
     }
 
-    public void validateOrderSequence(Long courseId, Integer order) {
+    private void validateOrderSequence(Long courseId, Integer order) {
         if (order == 1)
             return;
 

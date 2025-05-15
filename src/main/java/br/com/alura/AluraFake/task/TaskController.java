@@ -8,6 +8,12 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+
+import br.com.alura.AluraFake.task.dto.TaskDTO;
+import br.com.alura.AluraFake.task.dto.TaskPatchDTO;
+import br.com.alura.AluraFake.task.mapper.TaskMapper;
+import br.com.alura.AluraFake.task.mapper.TaskPatchMapper;
+
 import org.springframework.web.bind.annotation.PathVariable;
 
 @RestController
@@ -37,6 +43,12 @@ public class TaskController {
     @PutMapping("/{id}")
     public ResponseEntity<TaskDTO> updateTask(@PathVariable Long id, @Valid @RequestBody TaskDTO taskDTO) {
         return ResponseEntity.ok(TaskMapper.toDTO(taskService.updateTask(id, TaskMapper.toEntity(taskDTO))));
+    }
+
+    @PatchMapping("/{id}")
+    public ResponseEntity<TaskDTO> patchTask(@PathVariable Long id, @RequestBody TaskPatchDTO taskPatchDTO) {
+        return ResponseEntity
+                .ok(TaskMapper.toDTO(taskService.patchTask(id, TaskPatchMapper.toPartialEntity(taskPatchDTO))));
     }
 
 }

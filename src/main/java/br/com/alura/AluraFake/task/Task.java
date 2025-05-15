@@ -48,6 +48,14 @@ public class Task {
                 this.courseId.equals(task.courseId);
     }
 
+    public static boolean isEmpty(Task task) {
+        return task.statement == null &&
+                task.type == null &&
+                task.order == null &&
+                task.courseId == null &&
+                task.id == null;
+    }
+
     public Type getType() {
         return type;
     }

@@ -29,7 +29,6 @@ public class TaskService {
     @Transactional
     public Task createOpenTextTask(Task task) {
         taskValidator.validateForCreate(task);
-        taskValidator.validateOrderSequence(task.getCourseId(), task.getOrder());
         taskRepository.updateTaskOrderForInsert(task.getCourseId(), task.getOrder());
 
         return taskRepository.save(task);
@@ -54,7 +53,26 @@ public class TaskService {
         return taskRepository.save(existingTask);
     }
 
+    @Transactional
+    public Task patchTask(Long taskId, Task task) {
+        Task existingTask = taskRepository.findById(taskId)
+                .orElseThrow(() -> new TaskException("Task " + taskId + " not found.", HttpStatus.NOT_FOUND));
+
+        mergeTaskUpdates(existingTask, task);
+
+        if (existingTask.isSameAs(task) || Task.isEmpty(task)) {
+            return existingTask;
+        }
+
+        taskValidator.validateForUpdate(existingTask);
+
+        return taskRepository.save(existingTask);
+    }
+
     private void adjustTaskOrder(Task existingTask, Integer newOrder) {
+        if (newOrder == null)
+            return;
+
         if (newOrder > existingTask.getOrder()) {
             taskRepository.decrementOrderRange(existingTask.getCourseId(), existingTask.getOrder() + 1, newOrder);
         } else {
@@ -67,5 +85,22 @@ public class TaskService {
         existingTask.setOrder(task.getOrder());
         existingTask.setType(task.getType());
         existingTask.setCourseId(task.getCourseId());
+    }
+
+    private void mergeTaskUpdates(Task existingTask, Task task) {
+        if (task.getStatement() != null) {
+            existingTask.setStatement(task.getStatement());
+        }
+
+        if (task.getOrder() != null) {
+            adjustTaskOrder(existingTask, task.getOrder());
+            existingTask.setOrder(task.getOrder());
+        }
+
+        if (task.getType() != null)
+            existingTask.setType(task.getType());
+
+        if (task.getCourseId() != null)
+            existingTask.setCourseId(task.getCourseId());
     }
 }
