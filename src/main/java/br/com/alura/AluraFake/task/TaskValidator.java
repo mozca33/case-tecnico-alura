@@ -5,30 +5,23 @@ import java.util.List;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
-import br.com.alura.AluraFake.course.Course;
-import br.com.alura.AluraFake.course.CourseRepository;
-import br.com.alura.AluraFake.course.Status;
 import br.com.alura.AluraFake.task.exceptions.TaskException;
 
 @Component
 public class TaskValidator {
 
-    private final CourseRepository courseRepository;
     private final TaskRepository taskRepository;
 
-    public TaskValidator(CourseRepository courseRepository, TaskRepository taskRepository) {
-        this.courseRepository = courseRepository;
+    public TaskValidator(TaskRepository taskRepository) {
         this.taskRepository = taskRepository;
     }
 
     public void validateForCreate(Task newTask) {
-        validateCourseIsInBuildingStatus(newTask.getCourseId());
         validateOrderSequence(newTask.getCourseId(), newTask.getOrder());
         validateUniqueStatementForCreate(newTask);
     }
 
     public void validateForUpdate(Task newTask) {
-        validateCourseIsInBuildingStatus(newTask.getCourseId());
         validateOrderSequence(newTask.getCourseId(), newTask.getOrder());
         validateUniqueStatementForUpdate(newTask);
     }
@@ -39,16 +32,6 @@ public class TaskValidator {
 
         if (!taskRepository.existsByCourseIdAndOrder(courseId, order - 1)) {
             throw new TaskException("Task order is not sequential.", HttpStatus.BAD_REQUEST);
-        }
-    }
-
-    private void validateCourseIsInBuildingStatus(Long courseId) {
-        Course course = courseRepository.findById(courseId)
-                .orElseThrow(() -> new TaskException("Course " + courseId + " not found.", HttpStatus.NOT_FOUND));
-
-        if (course.getStatus() != Status.BUILDING) {
-            throw new TaskException("Course " + courseId + " is not in BUILDING status.",
-                    HttpStatus.CONFLICT);
         }
     }
 

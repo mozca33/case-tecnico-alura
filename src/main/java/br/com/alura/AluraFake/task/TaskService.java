@@ -3,6 +3,8 @@ package br.com.alura.AluraFake.task;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
+import br.com.alura.AluraFake.course.CourseRepository;
+import br.com.alura.AluraFake.course.CourseValidator;
 import br.com.alura.AluraFake.task.exceptions.TaskException;
 import jakarta.transaction.Transactional;
 
@@ -10,8 +12,10 @@ import jakarta.transaction.Transactional;
 public class TaskService {
     private final TaskRepository taskRepository;
     private final TaskValidator taskValidator;
+    private final CourseValidator courseValidator;
 
-    public TaskService(TaskRepository taskRepository, TaskValidator taskValidator) {
+    public TaskService(TaskRepository taskRepository, TaskValidator taskValidator, CourseValidator courseValidator) {
+        this.courseValidator = courseValidator;
         this.taskRepository = taskRepository;
         this.taskValidator = taskValidator;
     }
@@ -27,7 +31,8 @@ public class TaskService {
     }
 
     @Transactional
-    public Task createOpenTextTask(Task task) {
+    private Task createOpenTextTask(Task task) {
+        courseValidator.validateCourseIsInBuildingStatus(task.getCourseId());
         taskValidator.validateForCreate(task);
         taskRepository.updateTaskOrderForInsert(task.getCourseId(), task.getOrder());
 
