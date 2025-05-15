@@ -38,4 +38,6 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
         void decrementOrderRange(@Param("courseId") Long courseId, @Param("start") Integer start,
                         @Param("end") Integer end);
 
+        long countByCourseId(Long courseId);
+
 }

@@ -17,6 +17,7 @@ public class TaskValidator {
     }
 
     public void validateForCreate(Task newTask) {
+        validateTaskLimit(newTask.getCourseId());
         validateOrderSequence(newTask.getCourseId(), newTask.getOrder());
         validateUniqueStatementForCreate(newTask);
     }
@@ -24,6 +25,14 @@ public class TaskValidator {
     public void validateForUpdate(Task newTask) {
         validateOrderSequence(newTask.getCourseId(), newTask.getOrder());
         validateUniqueStatementForUpdate(newTask);
+    }
+
+    private void validateTaskLimit(Long courseId) {
+        long taskCount = taskRepository.countByCourseId(courseId);
+        if (taskCount >= 5) {
+            throw new TaskException("Task limit reached for course " + courseId + ", maximum is 5.",
+                    HttpStatus.BAD_REQUEST);
+        }
     }
 
     private void validateOrderSequence(Long courseId, Integer order) {
