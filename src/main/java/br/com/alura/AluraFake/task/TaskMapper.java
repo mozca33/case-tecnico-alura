@@ -2,11 +2,7 @@ package br.com.alura.AluraFake.task;
 
 public class TaskMapper {
     public static Task toEntity(TaskDTO taskDTO) {
-        Task task = new Task();
-        task.setCourseId(taskDTO.courseId());
-        task.setStatement(taskDTO.statement());
-        task.setOrder(taskDTO.order());
-        task.setType(taskDTO.type());
+        Task task = new Task(taskDTO.statement(), taskDTO.type(), taskDTO.order(), taskDTO.courseId());
         return task;
     }
 

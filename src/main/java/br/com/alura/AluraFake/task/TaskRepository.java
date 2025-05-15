@@ -7,24 +7,35 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Transactional;
 
 @Repository
 public interface TaskRepository extends JpaRepository<Task, Long> {
-    boolean existsByCourseIdAndStatement(Long id, String statement);
+        boolean existsByCourseIdAndStatement(Long id, String statement);
 
-    List<Task> findByCourseId(Long courseId);
+        boolean existsByCourseIdAndOrder(Long courseId, Integer order);
 
-    @Modifying
-    @Query("UPDATE Task t SET t.order = t.order + 1 WHERE t.courseId = :courseId AND t.order >= :newOrder")
-    @Transactional
-    /***
-     * Update the order of tasks when a new task is inserted.
-     * This method increments the order of all tasks that have an order greater than
-     * the previous order.
-     * 
-     * @param courseId The ID of the course to which the task belongs.
-     * @param newOrder The new order of the task being inserted.
-     */
-    void updateTaskOrderForInsert(@Param("courseId") Long courseId, @Param("newOrder") Integer newOrder);
+        List<Task> findByCourseId(Long courseId);
+
+        @Modifying
+        @Query("UPDATE Task t SET t.order = t.order + 1 WHERE t.courseId = :courseId AND t.order >= :newOrder")
+        /***
+         * Update the order of tasks when a new task is inserted.
+         * This method increments the order of all tasks that have an order greater than
+         * the previous order.
+         * 
+         * @param courseId The ID of the course to which the task belongs.
+         * @param newOrder The new order of the task being inserted.
+         */
+        void updateTaskOrderForInsert(@Param("courseId") Long courseId, @Param("newOrder") Integer newOrder);
+
+        @Modifying
+        @Query("UPDATE Task t SET t.order = t.order + 1 WHERE t.courseId = :courseId AND t.order BETWEEN :start AND :end")
+        void incrementOrderRange(@Param("courseId") Long courseId, @Param("start") Integer start,
+                        @Param("end") Integer end);
+
+        @Modifying
+        @Query("UPDATE Task t SET t.order = t.order - 1 WHERE t.courseId = :courseId AND t.order BETWEEN :start AND :end")
+        void decrementOrderRange(@Param("courseId") Long courseId, @Param("start") Integer start,
+                        @Param("end") Integer end);
+
 }

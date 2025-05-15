@@ -23,6 +23,31 @@ public class Task {
     @Column(nullable = false)
     private Type type;
 
+    public Task() {
+    }
+
+    public Task(Long id, String statement, Type type, Integer order, Long courseId) {
+        this.id = id;
+        this.statement = statement;
+        this.type = type;
+        this.order = order;
+        this.courseId = courseId;
+    }
+
+    public Task(String statement, Type type, Integer order, Long courseId) {
+        this.statement = statement;
+        this.type = type;
+        this.order = order;
+        this.courseId = courseId;
+    }
+
+    public boolean isSameAs(Task task) {
+        return this.statement.equals(task.statement) &&
+                this.order.equals(task.order) &&
+                this.type.equals(task.type) &&
+                this.courseId.equals(task.courseId);
+    }
+
     public Type getType() {
         return type;
     }
