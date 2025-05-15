@@ -22,12 +22,12 @@ public class TaskService {
             case OPEN_TEXT:
                 return createOpenTextTask(task);
             default:
-                throw new RuntimeException("Unknown task type " + task.getType() + ".");
+                throw new TaskException("Unknown task type " + task.getType() + ".", HttpStatus.BAD_REQUEST);
         }
     }
 
     @Transactional
-    private Task createOpenTextTask(Task task) {
+    public Task createOpenTextTask(Task task) {
         taskValidator.validateForCreate(task);
         taskValidator.validateOrderSequence(task.getCourseId(), task.getOrder());
         taskRepository.updateTaskOrderForInsert(task.getCourseId(), task.getOrder());
@@ -38,7 +38,7 @@ public class TaskService {
     @Transactional
     public Task updateTask(Long taskId, Task task) {
         Task existingTask = taskRepository.findById(taskId)
-                .orElseThrow(() -> new RuntimeException("Task " + taskId + " not found."));
+                .orElseThrow(() -> new TaskException("Task " + taskId + " not found.", HttpStatus.NOT_FOUND));
 
         if (existingTask.isSameAs(task)) {
             return existingTask;
