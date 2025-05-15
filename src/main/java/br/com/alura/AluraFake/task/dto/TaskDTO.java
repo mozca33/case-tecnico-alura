@@ -1,6 +1,7 @@
-package br.com.alura.AluraFake.task;
+package br.com.alura.AluraFake.task.dto;
 
 import jakarta.validation.constraints.Min;
+import br.com.alura.AluraFake.task.Type;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
