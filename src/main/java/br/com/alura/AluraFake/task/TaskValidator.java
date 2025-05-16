@@ -32,6 +32,9 @@ public class TaskValidator {
     public void validateForUpdate(Task newTask) {
         validateOrderSequence(newTask.getCourseId(), newTask.getOrder());
         validateUniqueStatementForUpdate(newTask);
+        if (newTask.isSingleChoice()) {
+            validateSingleChoiceOptions(newTask);
+        }
     }
 
     private void validateTaskLimit(Long courseId) {

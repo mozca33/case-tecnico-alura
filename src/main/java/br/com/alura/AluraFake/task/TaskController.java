@@ -44,8 +44,13 @@ public class TaskController {
     }
 
     @PutMapping("/opentext/{id}")
-    public ResponseEntity<TaskDTO> updateTask(@PathVariable Long id, @Valid @RequestBody TaskDTO taskDTO) {
-        return ResponseEntity.ok(TaskMapper.toDTO(taskService.updateTask(id, TaskMapper.toEntity(taskDTO))));
+    public ResponseEntity<TaskDTO> updateOpenTextTask(@PathVariable Long id, @Valid @RequestBody TaskDTO taskDTO) {
+        return ResponseEntity.ok(TaskMapper.toDTO(taskService.updateTask(TaskMapper.toEntity(taskDTO.withType(Type.OPEN_TEXT)))));
+    }
+
+    @PutMapping("/singlechoice/{id}")
+    public ResponseEntity<TaskSingleChoiceDTO> updateSingleChoiceTask(@PathVariable Long id, @Valid @RequestBody TaskSingleChoiceDTO taskDTO) {
+        return ResponseEntity.ok(TaskSingleChoiceMapper.toDTO(taskService.updateTask(TaskSingleChoiceMapper.toEntity(id, taskDTO.withType(Type.SINGLE_CHOICE)))));
     }
 
     @PatchMapping("/opentext/{id}")

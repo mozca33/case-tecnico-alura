@@ -1,4 +1,5 @@
 package br.com.alura.AluraFake.task;
+import java.util.ArrayList;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -101,6 +102,11 @@ public class TaskService {
         existingTask.setStatement(task.getStatement());
         existingTask.setOrder(task.getOrder());
         existingTask.setCourseId(task.getCourseId());
+        if (existingTask.getType() == Type.SINGLE_CHOICE) {
+            existingTask.getOptions().clear();
+            existingTask.getOptions().addAll(task.getOptions());
+            attachOptionsToTask(existingTask);
+        }
     }
 
     private void mergeTaskUpdates(Task existingTask, Task task) {

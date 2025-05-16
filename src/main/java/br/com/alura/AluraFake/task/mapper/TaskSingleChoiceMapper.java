@@ -22,6 +22,20 @@ public class TaskSingleChoiceMapper {
         return task;
     }
 
+    public static Task toEntity(Long taskId, TaskSingleChoiceDTO taskDTO) {
+        Task task = new Task(taskId, taskDTO.statement(), taskDTO.type(), taskDTO.order(), taskDTO.courseId());
+        if (taskDTO.options() != null) {
+            List<TaskOption> options = taskDTO.options().stream()
+                    .map(opt -> new TaskOption(opt.option(), opt.isCorrect()))
+                    .toList();
+
+            task.setOptions(options);
+
+        }
+
+        return task;
+    }
+
     public static TaskSingleChoiceDTO toDTO(Task task) {
         var optionDTO = task.getOptions().stream()
                 .map(opt -> new TaskOptionDTO(opt.getTaskOption(), opt.getCorrect()))

@@ -61,10 +61,15 @@ public class Task {
     }
 
     public boolean isSameAs(Task task) {
-        return this.statement.equals(task.statement) &&
+        boolean result = this.statement.equals(task.statement) &&
                 this.order.equals(task.order) &&
                 this.type.equals(task.type) &&
                 this.courseId.equals(task.courseId);
+        
+        if (this.isSingleChoice()) {
+            return optionsAreSame(task.getOptions()) && result;
+        }
+        return result;
     }
 
     public static boolean isEmpty(Task task) {
@@ -129,5 +134,21 @@ public class Task {
 
     public boolean isMultipleChoice() {
         return this.type == Type.MULTIPLE_CHOICE;
+    }
+
+    private boolean optionsAreSame(List<TaskOption> options) {
+        if (this.options.size() != options.size()) {
+            return false;
+        }
+
+        for (TaskOption option : options) {
+            if (this.options.stream().noneMatch(o -> 
+                    o.getTaskOption().equals(option.getTaskOption()) &&
+                    o.getCorrect().equals(option.getCorrect()))) {
+                return false;
+            }
+        }
+        
+        return true;
     }
 }
