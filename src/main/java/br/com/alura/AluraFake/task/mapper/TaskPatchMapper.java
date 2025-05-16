@@ -1,7 +1,7 @@
 package br.com.alura.AluraFake.task.mapper;
 
-import br.com.alura.AluraFake.task.Task;
 import br.com.alura.AluraFake.task.dto.TaskPatchDTO;
+import br.com.alura.AluraFake.task.models.Task;
 
 public class TaskPatchMapper {
 

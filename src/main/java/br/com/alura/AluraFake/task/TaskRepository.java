@@ -8,6 +8,8 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import br.com.alura.AluraFake.task.models.Task;
+
 @Repository
 public interface TaskRepository extends JpaRepository<Task, Long> {
         boolean existsByCourseIdAndStatement(Long id, String statement);

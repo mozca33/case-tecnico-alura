@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 
 import br.com.alura.AluraFake.course.CourseValidator;
 import br.com.alura.AluraFake.task.exceptions.TaskException;
+import br.com.alura.AluraFake.task.models.Task;
 import jakarta.transaction.Transactional;
 
 @Service
@@ -24,9 +25,21 @@ public class TaskService {
         switch (task.getType()) {
             case OPEN_TEXT:
                 return createOpenTextTask(task);
+            case SINGLE_CHOICE:
+                return createSingleChoiceTask(task);
             default:
                 throw new TaskException("Unknown task type " + task.getType() + ".", HttpStatus.BAD_REQUEST);
         }
+    }
+
+    @Transactional
+    private Task createSingleChoiceTask(Task task) {
+        courseValidator.validateCourseIsInBuildingStatus(task.getCourseId());
+        taskValidator.validateForCreate(task);
+        taskRepository.updateTaskOrderForInsert(task.getCourseId(), task.getOrder());
+        attachOptionsToTask(task);
+
+        return taskRepository.save(task);
     }
 
     @Transactional
@@ -105,5 +118,11 @@ public class TaskService {
 
         if (task.getCourseId() != null)
             existingTask.setCourseId(task.getCourseId());
+    }
+
+    private void attachOptionsToTask(Task task) {
+        if (task.getOptions() != null) {
+            task.getOptions().forEach(option -> option.setTask(task));
+        }
     }
 }
