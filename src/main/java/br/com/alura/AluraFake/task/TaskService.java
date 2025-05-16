@@ -53,14 +53,14 @@ public class TaskService {
     }
 
     @Transactional
-    public Task updateTask(Long taskId, Task task) {
-        Task existingTask = taskRepository.findById(taskId)
-                .orElseThrow(() -> new TaskException("Task " + taskId + " not found.", HttpStatus.NOT_FOUND));
+    public Task updateTask(Task task) {
+        Task existingTask = taskRepository.findById(task.getId())
+                .orElseThrow(() -> new TaskException("Task " + task.getId() + " not found.", HttpStatus.NOT_FOUND));
 
         if (existingTask.isSameAs(task)) {
             return existingTask;
         }
-
+        courseValidator.validateCourseIsInBuildingStatus(task.getCourseId());
         taskValidator.validateForUpdate(task);
         if (!existingTask.getOrder().equals(task.getOrder())) {
             adjustTaskOrder(existingTask, task.getOrder());
@@ -78,7 +78,7 @@ public class TaskService {
 
         mergeTaskUpdates(existingTask, task);
 
-        if (existingTask.isSameAs(task) || Task.isEmpty(task)) {
+        if (existingTask.isSameAs(task) || task.isEmpty()) {
             return existingTask;
         }
 
