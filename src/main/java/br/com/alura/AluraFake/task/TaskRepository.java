@@ -42,4 +42,6 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
 
         long countByCourseId(Long courseId);
 
+        Task findByCourseIdAndOrder(Long id, int i);
+
 }

@@ -22,7 +22,7 @@ public class TaskValidator {
 
     public void validateForCreate(Task newTask) {
         validateTaskLimit(newTask.getCourseId());
-        validateOrderSequence(newTask.getCourseId(), newTask.getOrder());
+        validateOrderSequence(newTask, newTask.getOrder());
         validateUniqueStatementForCreate(newTask);
         if (newTask.isSingleChoice()) {
             validateSingleChoiceOptions(newTask);
@@ -30,7 +30,7 @@ public class TaskValidator {
     }
 
     public void validateForUpdate(Task newTask) {
-        validateOrderSequence(newTask.getCourseId(), newTask.getOrder());
+        validateOrderSequence(newTask, newTask.getOrder());
         validateUniqueStatementForUpdate(newTask);
         if (newTask.isSingleChoice()) {
             validateSingleChoiceOptions(newTask);
@@ -45,11 +45,17 @@ public class TaskValidator {
         }
     }
 
-    private void validateOrderSequence(Long courseId, Integer order) {
+    private void validateOrderSequence(Task task, Integer order) {
         if (order == 1)
             return;
 
-        if (!taskRepository.existsByCourseIdAndOrder(courseId, order - 1)) {
+        Task previousTask = taskRepository.findByCourseIdAndOrder(task.getCourseId(), order - 1);
+        Task nextTask = taskRepository.findByCourseIdAndOrder(task.getCourseId(), order);
+
+        if (previousTask == null) {
+            throw new TaskException("Task order is not sequential.", HttpStatus.BAD_REQUEST);
+        }
+        if (previousTask.getId().equals(task.getId()) && nextTask == null) {
             throw new TaskException("Task order is not sequential.", HttpStatus.BAD_REQUEST);
         }
     }

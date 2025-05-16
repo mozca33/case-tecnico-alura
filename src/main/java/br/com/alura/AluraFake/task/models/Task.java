@@ -72,12 +72,12 @@ public class Task {
         return result;
     }
 
-    public static boolean isEmpty(Task task) {
-        return task.statement == null &&
-                task.type == null &&
-                task.order == null &&
-                task.courseId == null &&
-                task.id == null;
+    public boolean isEmpty() {
+        return this.statement == null &&
+                this.type == null &&
+                this.order == null &&
+                this.courseId == null &&
+                this.id == null;
     }
 
     public Type getType() {
