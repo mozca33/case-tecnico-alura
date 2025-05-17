@@ -32,6 +32,10 @@ public class TaskOption {
         this.isCorrect = isCorrect;
     }
 
+    public Long getId() {
+        return id;
+    }
+
     public Task getTask() {
         return task;
     }
