@@ -10,9 +10,11 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
 import br.com.alura.AluraFake.task.dto.TaskDTO;
+import br.com.alura.AluraFake.task.dto.TaskMultipleChoiceDTO;
 import br.com.alura.AluraFake.task.dto.TaskPatchDTO;
 import br.com.alura.AluraFake.task.dto.TaskSingleChoiceDTO;
 import br.com.alura.AluraFake.task.mapper.TaskMapper;
+import br.com.alura.AluraFake.task.mapper.TaskMultipleChoiceMapper;
 import br.com.alura.AluraFake.task.mapper.TaskPatchMapper;
 import br.com.alura.AluraFake.task.mapper.TaskSingleChoiceMapper;
 
@@ -38,9 +40,11 @@ public class TaskController {
                         taskService.createTask(TaskSingleChoiceMapper.toEntity(taskDTO.withType(Type.SINGLE_CHOICE)))));
     }
 
-    @PostMapping("/task/new/multiplechoice")
-    public ResponseEntity newMultipleChoice() {
-        return ResponseEntity.ok().build();
+    @PostMapping("/new/multiplechoice")
+    public ResponseEntity<TaskMultipleChoiceDTO> newMultipleChoice(@Valid @RequestBody TaskMultipleChoiceDTO taskDTO) {
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(TaskMultipleChoiceMapper.toDTO(
+                        taskService.createTask(TaskMultipleChoiceMapper.toEntity(taskDTO.withType(Type.MULTIPLE_CHOICE)))));
     }
 
     @PutMapping("/opentext/{id}")

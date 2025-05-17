@@ -28,6 +28,8 @@ public class TaskService {
                 return createOpenTextTask(task);
             case SINGLE_CHOICE:
                 return createSingleChoiceTask(task);
+            case MULTIPLE_CHOICE:
+                return createMultipleChoiceTask(task);
             default:
                 throw new TaskException("Unknown task type " + task.getType() + ".", HttpStatus.BAD_REQUEST);
         }
@@ -48,6 +50,16 @@ public class TaskService {
         courseValidator.validateCourseIsInBuildingStatus(task.getCourseId());
         taskValidator.validateForCreate(task);
         taskRepository.updateTaskOrderForInsert(task.getCourseId(), task.getOrder());
+
+        return taskRepository.save(task);
+    }
+    
+    @Transactional
+    private Task createMultipleChoiceTask(Task task) {
+        courseValidator.validateCourseIsInBuildingStatus(task.getCourseId());
+        taskValidator.validateForCreate(task);
+        taskRepository.updateTaskOrderForInsert(task.getCourseId(), task.getOrder());
+        attachOptionsToTask(task);
 
         return taskRepository.save(task);
     }

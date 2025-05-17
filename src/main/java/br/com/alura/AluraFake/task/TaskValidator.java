@@ -27,6 +27,9 @@ public class TaskValidator {
         if (newTask.isSingleChoice()) {
             validateSingleChoiceOptions(newTask);
         }
+        if (newTask.isMultipleChoice()) {
+            validateMultipleChoiceOptions(newTask);
+        }
     }
 
     public void validateForUpdate(Task newTask) {
@@ -108,5 +111,37 @@ public class TaskValidator {
             }
         }
 
+    }
+     private void validateMultipleChoiceOptions(Task task) {
+        List<TaskOption> options = task.getOptions();
+        Set<String> seenTexts = new HashSet<>();
+
+        if (options == null || options.isEmpty() || options.size() < 3 || options.size() > 5) {
+            throw new TaskException("Multiple choice task must have between 3 and 5 options.",
+                    HttpStatus.BAD_REQUEST);
+        }
+
+        if (options.stream().filter(TaskOption::getCorrect).count() < 2) {
+            throw new TaskException("Multiple choice task must have two or more correct options, up to 4.",
+                    HttpStatus.BAD_REQUEST);
+        }
+
+        if (options.stream().filter(TaskOption::getCorrect).count() == 5) {
+            throw new TaskException("Multiple choice task must have at least one incorrect option.",
+                    HttpStatus.BAD_REQUEST);
+        }
+
+        for (TaskOption option : options) {
+
+            if (task.getStatement().toLowerCase().equals(option.getTaskOption().toLowerCase())) {
+                throw new TaskException("Option text cannot be the same as the task statement.",
+                        HttpStatus.BAD_REQUEST);
+            }
+
+            if (!seenTexts.add(option.getTaskOption().toLowerCase())) {
+                throw new TaskException("Duplicate option text found: " + option.getTaskOption(),
+                        HttpStatus.BAD_REQUEST);
+            }
+        }
     }
 }
