@@ -1,9 +1,8 @@
 package br.com.alura.AluraFake.task.dto;
 
-import jakarta.validation.constraints.Min;
-
 import br.com.alura.AluraFake.task.Type;
 import br.com.alura.AluraFake.task.models.Task;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -17,6 +16,7 @@ public record OpenTextTaskDTO(
     public OpenTextTaskDTO {
     }
 
+    @Override
     public OpenTextTaskDTO withType(Type newType) {
         return new OpenTextTaskDTO(this.id, this.courseId, this.statement, this.order, newType);
     }

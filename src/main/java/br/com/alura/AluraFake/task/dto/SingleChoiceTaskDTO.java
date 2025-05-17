@@ -5,11 +5,11 @@ import java.util.List;
 import br.com.alura.AluraFake.task.Type;
 import br.com.alura.AluraFake.task.mapper.TaskOptionMapper;
 import br.com.alura.AluraFake.task.models.Task;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
-import jakarta.validation.Valid;
 
 public record SingleChoiceTaskDTO(
         Long id,
@@ -22,6 +22,7 @@ public record SingleChoiceTaskDTO(
     public SingleChoiceTaskDTO {
     }
 
+    @Override
     public SingleChoiceTaskDTO withType(Type newType) {
         return new SingleChoiceTaskDTO(this.id, this.courseId, this.statement, this.order, newType, this.options);
     }
