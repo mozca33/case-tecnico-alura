@@ -22,9 +22,9 @@ public record TaskPatchDTO(
     public Task toPartialEntity(Long id) {
         Task task = new Task(id, statement(), type(), order(), courseId());
         if (options() != null) {
-            List<TaskOption> options = options().stream()
+            List<TaskOption> listOptions = options().stream()
                     .map(opt -> new TaskOption(opt.option(), opt.isCorrect())).toList();
-            task.setOptions(options);
+            task.setOptions(listOptions);
         }
         return task;
     }
