@@ -3,6 +3,7 @@ package br.com.alura.AluraFake.course;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
+import br.com.alura.AluraFake.course.exceptions.CourseException;
 import br.com.alura.AluraFake.task.exceptions.TaskException;
 
 @Component
@@ -21,6 +22,12 @@ public class CourseValidator {
         if (course.getStatus() != Status.BUILDING) {
             throw new TaskException("Course " + courseId + " is not in BUILDING status.",
                     HttpStatus.CONFLICT);
+        }
+    }
+
+    public void validateCourseExistsById(Long courseId) {
+        if (!courseRepository.existsById(courseId)) {
+            throw new CourseException("Course with id " + courseId + " not found.", HttpStatus.NOT_FOUND);
         }
     }
 }

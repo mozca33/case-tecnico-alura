@@ -25,16 +25,11 @@ public class TaskService {
 
     @Transactional
     public Task createTask(Task task) {
-        switch (task.getType()) {
-            case OPEN_TEXT:
-                return createOpenTextTask(task);
-            case SINGLE_CHOICE:
-                return createSingleChoiceTask(task);
-            case MULTIPLE_CHOICE:
-                return createMultipleChoiceTask(task);
-            default:
-                throw new TaskException("Unknown task type " + task.getType() + ".", HttpStatus.BAD_REQUEST);
-        }
+        return switch (task.getType()) {
+            case OPEN_TEXT -> createAndPersistTask(task, false);
+            case SINGLE_CHOICE, MULTIPLE_CHOICE -> createAndPersistTask(task, true);
+            default -> throw new TaskException("Unknown task type " + task.getType() + ".", HttpStatus.BAD_REQUEST);
+        };
     }
 
     @Transactional
@@ -59,22 +54,11 @@ public class TaskService {
         return taskRepository.save(existingTask);
     }
 
-    private Task createSingleChoiceTask(Task task) {
+    private Task createAndPersistTask(Task task, boolean hasOptions) {
         prepareTaskForCreation(task);
-        task.attachOptionsToTask();
-
-        return taskRepository.save(task);
-    }
-
-    private Task createOpenTextTask(Task task) {
-        prepareTaskForCreation(task);
-
-        return taskRepository.save(task);
-    }
-
-    private Task createMultipleChoiceTask(Task task) {
-        prepareTaskForCreation(task);
-        task.attachOptionsToTask();
+        if (hasOptions) {
+            task.attachOptionsToTask();
+        }
 
         return taskRepository.save(task);
     }

@@ -19,6 +19,12 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
 
         boolean existsByCourseIdAndOrder(Long courseId, Integer order);
 
+        int countByCourseId(Long courseId);
+
+        Task findTopByCourseIdAndOrderAndIdNot(Long courseId, Integer order, Long idToIgnore);
+
+        Task findTopByCourseIdAndOrder(Long courseId, Integer order);
+
         List<Task> findByCourseId(Long courseId);
 
         @Modifying
@@ -43,7 +49,4 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
         void decrementOrderRange(@Param("courseId") Long courseId, @Param("start") Integer start,
                         @Param("end") Integer end);
 
-        long countByCourseId(Long courseId);
-
-        Task findTopByCourseIdAndOrderAndIdNot(Long courseId, Integer order, Long idToIgnore);
 }

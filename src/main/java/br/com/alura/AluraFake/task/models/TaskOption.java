@@ -1,5 +1,6 @@
 package br.com.alura.AluraFake.task.models;
 
+import br.com.alura.AluraFake.task.dto.TaskOptionDTO;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -54,5 +55,9 @@ public class TaskOption {
 
     public void setTaskOption(String option) {
         this.option = option;
+    }
+
+    public TaskOptionDTO toDTO() {
+        return new TaskOptionDTO(this.getTaskOption(), this.getCorrect());
     }
 }

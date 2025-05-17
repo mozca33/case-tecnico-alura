@@ -5,6 +5,10 @@ import java.util.List;
 import org.springframework.http.HttpStatus;
 
 import br.com.alura.AluraFake.task.Type;
+import br.com.alura.AluraFake.task.dto.BaseTaskDTO;
+import br.com.alura.AluraFake.task.dto.MultipleChoiceTaskDTO;
+import br.com.alura.AluraFake.task.dto.OpenTextTaskDTO;
+import br.com.alura.AluraFake.task.dto.SingleChoiceTaskDTO;
 import br.com.alura.AluraFake.task.exceptions.TaskException;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -38,23 +42,8 @@ public class Task {
     public Task() {
     }
 
-    public Task(String statement, Type type, Integer order, Long courseId, List<TaskOption> options) {
-        this.statement = statement;
-        this.type = type;
-        this.order = order;
-        this.courseId = courseId;
-        this.options = options;
-    }
-
     public Task(Long id, String statement, Type type, Integer order, Long courseId) {
         this.id = id;
-        this.statement = statement;
-        this.type = type;
-        this.order = order;
-        this.courseId = courseId;
-    }
-
-    public Task(String statement, Type type, Integer order, Long courseId) {
         this.statement = statement;
         this.type = type;
         this.order = order;
@@ -195,5 +184,15 @@ public class Task {
         if (this.getOptions() != null) {
             this.getOptions().forEach(option -> option.setTask(this));
         }
+    }
+
+    public BaseTaskDTO toDTO() {
+        return switch (this.type) {
+            case OPEN_TEXT -> new OpenTextTaskDTO(id, courseId, statement, order, type);
+            case SINGLE_CHOICE -> new SingleChoiceTaskDTO(id, courseId, statement, order, type,
+                    options.stream().map(TaskOption::toDTO).toList());
+            case MULTIPLE_CHOICE -> new MultipleChoiceTaskDTO(id, courseId, statement, order, type,
+                    options.stream().map(TaskOption::toDTO).toList());
+        };
     }
 }

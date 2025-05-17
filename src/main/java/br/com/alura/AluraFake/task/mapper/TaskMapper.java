@@ -1,21 +1,30 @@
 package br.com.alura.AluraFake.task.mapper;
 
-import br.com.alura.AluraFake.task.dto.TaskDTO;
+import java.util.List;
+
+import br.com.alura.AluraFake.task.dto.BaseTaskDTO;
+import br.com.alura.AluraFake.task.dto.TaskPatchDTO;
 import br.com.alura.AluraFake.task.models.Task;
 
 public class TaskMapper {
-    public static Task toEntity(TaskDTO taskDTO) {
-        Task task = new Task(taskDTO.statement(), taskDTO.type(), taskDTO.order(), taskDTO.courseId());
-        return task;
+    public static Task toEntity(BaseTaskDTO dto) {
+        return dto.toEntity();
     }
 
-    public static Task toEntity(Long taskId, TaskDTO taskDTO) {
-        Task task = new Task(taskId, taskDTO.statement(), taskDTO.type(), taskDTO.order(), taskDTO.courseId());
-        return task;
+    public static Task toEntity(Long id, BaseTaskDTO dto) {
+        return dto.toEntity(id);
     }
 
-    public static TaskDTO toDTO(Task task) {
-        return new TaskDTO(task.getId(), task.getCourseId(), task.getStatement(), task.getOrder(),
-                task.getType());
+    public static Task toPartialEntity(Long id, TaskPatchDTO dto) {
+        return dto.toPartialEntity(id);
     }
+
+    public static BaseTaskDTO toDTO(Task task) {
+        return task.toDTO();
+    }
+
+    public static List<BaseTaskDTO> toDTO(List<Task> tasks) {
+        return tasks.stream().map(Task::toDTO).toList();
+    }
+
 }

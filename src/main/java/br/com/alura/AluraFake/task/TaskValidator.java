@@ -33,9 +33,9 @@ public class TaskValidator {
         validateUniqueStatementForCreate(newTask);
         if (newTask.isSingleChoice()) {
             validateOptions(newTask,
-                    MAX_SINGLE_CHOICE_CORRECT_OPTIONS,
                     MIN_SINGLE_CHOICE_OPTIONS,
                     MAX_OPTIONS,
+                    MAX_SINGLE_CHOICE_CORRECT_OPTIONS,
                     MAX_SINGLE_CHOICE_CORRECT_OPTIONS);
         }
         if (newTask.isMultipleChoice()) {
@@ -52,22 +52,22 @@ public class TaskValidator {
         validateUniqueStatementForUpdate(newTask);
         if (newTask.isSingleChoice()) {
             validateOptions(newTask,
-                    MAX_SINGLE_CHOICE_CORRECT_OPTIONS,
                     MIN_SINGLE_CHOICE_OPTIONS,
                     MAX_OPTIONS,
+                    MAX_SINGLE_CHOICE_CORRECT_OPTIONS,
                     MAX_SINGLE_CHOICE_CORRECT_OPTIONS);
         }
         if (newTask.isMultipleChoice()) {
             validateOptions(newTask,
                     MIN_MULTIPLE_CHOICE_OPTIONS,
-                    MIN_MULTIPLE_CHOICES_CORRECT_OPTIONS,
                     MAX_OPTIONS,
+                    MIN_MULTIPLE_CHOICES_CORRECT_OPTIONS,
                     MAX_MULTIPLE_CHOICES_CORRECT_OPTIONS);
         }
     }
 
     private void validateTaskLimit(Long courseId) {
-        long taskCount = taskRepository.countByCourseId(courseId);
+        int taskCount = taskRepository.countByCourseId(courseId);
         if (taskCount >= MAX_TASKS_PER_COURSE) {
             throw new TaskException("Task limit reached for course " + courseId + ", maximum is 5.",
                     HttpStatus.BAD_REQUEST);
@@ -75,12 +75,18 @@ public class TaskValidator {
     }
 
     private void validateOrderSequence(Task task, Integer order) {
+        Task previousTask, nextTask;
         if (order == 1)
             return;
 
-        Task previousTask = taskRepository.findTopByCourseIdAndOrderAndIdNot(task.getCourseId(), order - 1,
-                task.getId());
-        Task nextTask = taskRepository.findTopByCourseIdAndOrderAndIdNot(task.getCourseId(), order, task.getId());
+        if (task.getId() != null) {
+            previousTask = taskRepository.findTopByCourseIdAndOrderAndIdNot(task.getCourseId(), order - 1,
+                    task.getId());
+            nextTask = taskRepository.findTopByCourseIdAndOrderAndIdNot(task.getCourseId(), order, task.getId());
+        } else {
+            previousTask = taskRepository.findTopByCourseIdAndOrder(task.getCourseId(), order - 1);
+            nextTask = taskRepository.findTopByCourseIdAndOrder(task.getCourseId(), order);
+        }
 
         if (previousTask == null) {
             throw new TaskException("Task order is not sequential.", HttpStatus.BAD_REQUEST);
