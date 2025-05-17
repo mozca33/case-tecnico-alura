@@ -109,4 +109,11 @@ public class TaskController {
                                                 taskDTO.withType(Type.MULTIPLE_CHOICE)))));
         }
 
+        @DeleteMapping("/{id}")
+        public ResponseEntity<Void> deleteTask(@PathVariable Long id) {
+                taskService.deleteById(id);
+
+                return ResponseEntity.noContent().build();
+        }
+
 }

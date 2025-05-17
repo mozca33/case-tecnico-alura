@@ -77,4 +77,16 @@ public class TaskService {
         taskValidator.validateForCreate(task);
         taskRepository.updateTaskOrderForInsert(task.getCourseId(), task.getOrder());
     }
+
+    public void deleteById(Long id) {
+        if (id <= 0) {
+            throw new TaskException("Id must be a positive value.", HttpStatus.BAD_REQUEST);
+        }
+
+        if (!taskRepository.existsById(id)) {
+            throw new TaskException("Task with id " + id + " does not exist.", HttpStatus.NOT_FOUND);
+        }
+
+        taskRepository.deleteById(id);
+    }
 }
