@@ -38,6 +38,9 @@ public class TaskValidator {
         if (newTask.isSingleChoice()) {
             validateSingleChoiceOptions(newTask);
         }
+        if (newTask.isMultipleChoice()) {
+            validateMultipleChoiceOptions(newTask);
+        }
     }
 
     private void validateTaskLimit(Long courseId) {
@@ -112,6 +115,7 @@ public class TaskValidator {
         }
 
     }
+
      private void validateMultipleChoiceOptions(Task task) {
         List<TaskOption> options = task.getOptions();
         Set<String> seenTexts = new HashSet<>();

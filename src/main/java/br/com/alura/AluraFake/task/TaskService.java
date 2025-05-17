@@ -117,7 +117,8 @@ public class TaskService {
         existingTask.setStatement(task.getStatement());
         existingTask.setOrder(task.getOrder());
         existingTask.setCourseId(task.getCourseId());
-        if (task.getType() == Type.SINGLE_CHOICE && task.getType().equals(existingTask.getType())) {
+        if ((task.getType() == Type.SINGLE_CHOICE || 
+            task.getType() == Type.MULTIPLE_CHOICE) && task.getType().equals(existingTask.getType())) {
             existingTask.getOptions().clear();
             existingTask.getOptions().addAll(task.getOptions());
             attachOptionsToTask(existingTask);

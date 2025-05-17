@@ -66,7 +66,7 @@ public class Task {
                 this.type.equals(task.type) &&
                 this.courseId.equals(task.courseId);
         
-        if (this.isSingleChoice()) {
+        if (this.isSingleChoice() || this.isMultipleChoice()) {
             return optionsAreSame(task.getOptions()) && result;
         }
 
