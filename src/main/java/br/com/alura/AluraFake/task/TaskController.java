@@ -1,8 +1,7 @@
 package br.com.alura.AluraFake.task;
 
-import jakarta.validation.Valid;
+import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -31,6 +30,11 @@ public class TaskController {
 
         public TaskController(TaskService taskService) {
                 this.taskService = taskService;
+        }
+
+        @GetMapping("/{id}")
+        public ResponseEntity<List<BaseTaskDTO>> getTasksFromCourse(@PathVariable Long id) {
+                return ResponseEntity.ok().body(TaskMapper.toDTO(taskService.findTasksByCourseId(id)));
         }
 
         @PostMapping("/new/opentext")

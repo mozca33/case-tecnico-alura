@@ -1,5 +1,7 @@
 package br.com.alura.AluraFake.task;
 
+import java.util.List;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
@@ -21,6 +23,13 @@ public class TaskService {
         this.taskRepository = taskRepository;
         this.taskValidator = taskValidator;
         this.taskOrderService = taskOrderService;
+    }
+
+    public List<Task> findTasksByCourseId(Long id) {
+        courseValidator.validateCourseExistsById(id);
+        List<Task> list = taskRepository.findByCourseId(id);
+
+        return list;
     }
 
     @Transactional
