@@ -85,7 +85,7 @@ public class TaskValidator {
         List<TaskOption> options = task.getOptions();
         Set<String> seenTexts = new HashSet<>();
 
-        if (options == null || options.isEmpty()) {
+        if (options == null || options.isEmpty() || options.size() < 2 || options.size() > 5) {
             throw new TaskException("Single choice task must have between 2 and 5 options.",
                     HttpStatus.BAD_REQUEST);
         }

@@ -60,6 +60,7 @@ public class TaskService {
         if (existingTask.isSameAs(task)) {
             return existingTask;
         }
+
         courseValidator.validateCourseIsInBuildingStatus(task.getCourseId());
         taskValidator.validateForUpdate(task);
         if (!existingTask.getOrder().equals(task.getOrder())) {
@@ -82,6 +83,8 @@ public class TaskService {
             return existingTask;
         }
 
+        mergeTaskUpdates(existingTask, task);
+
         taskValidator.validateForUpdate(existingTask);
 
         return taskRepository.save(existingTask);
@@ -102,7 +105,7 @@ public class TaskService {
         existingTask.setStatement(task.getStatement());
         existingTask.setOrder(task.getOrder());
         existingTask.setCourseId(task.getCourseId());
-        if (existingTask.getType() == Type.SINGLE_CHOICE) {
+        if (task.getType() == Type.SINGLE_CHOICE && task.getOptions().equals(existingTask.getOptions())) {
             existingTask.getOptions().clear();
             existingTask.getOptions().addAll(task.getOptions());
             attachOptionsToTask(existingTask);
@@ -124,6 +127,14 @@ public class TaskService {
 
         if (task.getCourseId() != null)
             existingTask.setCourseId(task.getCourseId());
+
+        if (task.getOptions() != null) {
+            if (task.getType() == Type.SINGLE_CHOICE && task.getType().equals(existingTask.getType())) {
+                existingTask.getOptions().clear();
+                existingTask.getOptions().addAll(task.getOptions());
+                attachOptionsToTask(existingTask);
+            }
+        }
     }
 
     private void attachOptionsToTask(Task task) {

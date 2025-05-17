@@ -69,6 +69,7 @@ public class Task {
         if (this.isSingleChoice()) {
             return optionsAreSame(task.getOptions()) && result;
         }
+
         return result;
     }
 
@@ -137,6 +138,10 @@ public class Task {
     }
 
     private boolean optionsAreSame(List<TaskOption> options) {
+        if (options == null){
+            return false;
+        }
+
         if (this.options.size() != options.size()) {
             return false;
         }
