@@ -1,5 +1,4 @@
 package br.com.alura.AluraFake.task;
-import java.util.ArrayList;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -14,11 +13,14 @@ public class TaskService {
     private final TaskRepository taskRepository;
     private final TaskValidator taskValidator;
     private final CourseValidator courseValidator;
+    private final TaskOrderService taskOrderService;
 
-    public TaskService(TaskRepository taskRepository, TaskValidator taskValidator, CourseValidator courseValidator) {
+    public TaskService(TaskRepository taskRepository, TaskValidator taskValidator, CourseValidator courseValidator,
+            TaskOrderService taskOrderService) {
         this.courseValidator = courseValidator;
         this.taskRepository = taskRepository;
         this.taskValidator = taskValidator;
+        this.taskOrderService = taskOrderService;
     }
 
     @Transactional
@@ -36,123 +38,50 @@ public class TaskService {
     }
 
     @Transactional
-    private Task createSingleChoiceTask(Task task) {
-        courseValidator.validateCourseIsInBuildingStatus(task.getCourseId());
-        taskValidator.validateForCreate(task);
-        taskRepository.updateTaskOrderForInsert(task.getCourseId(), task.getOrder());
-        attachOptionsToTask(task);
-
-        return taskRepository.save(task);
-    }
-
-    @Transactional
-    private Task createOpenTextTask(Task task) {
-        courseValidator.validateCourseIsInBuildingStatus(task.getCourseId());
-        taskValidator.validateForCreate(task);
-        taskRepository.updateTaskOrderForInsert(task.getCourseId(), task.getOrder());
-
-        return taskRepository.save(task);
-    }
-    
-    @Transactional
-    private Task createMultipleChoiceTask(Task task) {
-        courseValidator.validateCourseIsInBuildingStatus(task.getCourseId());
-        taskValidator.validateForCreate(task);
-        taskRepository.updateTaskOrderForInsert(task.getCourseId(), task.getOrder());
-        attachOptionsToTask(task);
-
-        return taskRepository.save(task);
-    }
-
-    @Transactional
     public Task updateTask(Task task) {
+        Integer newOrder;
         Task existingTask = taskRepository.findById(task.getId())
                 .orElseThrow(() -> new TaskException("Task " + task.getId() + " not found.", HttpStatus.NOT_FOUND));
-
-        if (existingTask.isSameAs(task)) {
-            return existingTask;
-        }
-
-        courseValidator.validateCourseIsInBuildingStatus(task.getCourseId());
-        taskValidator.validateForUpdate(task);
-        if (!existingTask.getOrder().equals(task.getOrder())) {
-            adjustTaskOrder(existingTask, task.getOrder());
-        }
-
-        updateExistingTask(existingTask, task);
-
-        return taskRepository.save(existingTask);
-    }
-
-    @Transactional
-    public Task patchTask(Long taskId, Task task) {
-        Task existingTask = taskRepository.findById(taskId)
-                .orElseThrow(() -> new TaskException("Task " + taskId + " not found.", HttpStatus.NOT_FOUND));
-
-        mergeTaskUpdates(existingTask, task);
+        task.ensureSameTypeAs(existingTask);
 
         if (existingTask.isSameAs(task) || task.isEmpty()) {
             return existingTask;
         }
 
-        mergeTaskUpdates(existingTask, task);
-
+        newOrder = existingTask.mergeFrom(task);
+        if (newOrder != null && !existingTask.getOrder().equals(task.getOrder())) {
+            taskOrderService.adjustOrderForUpdate(existingTask, task.getOrder());
+            existingTask.setOrder(newOrder);
+        }
+        courseValidator.validateCourseIsInBuildingStatus(existingTask.getCourseId());
         taskValidator.validateForUpdate(existingTask);
 
         return taskRepository.save(existingTask);
     }
 
-    private void adjustTaskOrder(Task existingTask, Integer newOrder) {
-        if (newOrder == null)
-            return;
+    private Task createSingleChoiceTask(Task task) {
+        prepareTaskForCreation(task);
+        task.attachOptionsToTask();
 
-        if (newOrder > existingTask.getOrder()) {
-            taskRepository.decrementOrderRange(existingTask.getCourseId(), existingTask.getOrder() + 1, newOrder);
-        } else {
-            taskRepository.incrementOrderRange(existingTask.getCourseId(), newOrder, existingTask.getOrder() - 1);
-        }
+        return taskRepository.save(task);
     }
 
-    private void updateExistingTask(Task existingTask, Task task) {
-        existingTask.setStatement(task.getStatement());
-        existingTask.setOrder(task.getOrder());
-        existingTask.setCourseId(task.getCourseId());
-        if ((task.getType() == Type.SINGLE_CHOICE || 
-            task.getType() == Type.MULTIPLE_CHOICE) && task.getType().equals(existingTask.getType())) {
-            existingTask.getOptions().clear();
-            existingTask.getOptions().addAll(task.getOptions());
-            attachOptionsToTask(existingTask);
-        }
+    private Task createOpenTextTask(Task task) {
+        prepareTaskForCreation(task);
+
+        return taskRepository.save(task);
     }
 
-    private void mergeTaskUpdates(Task existingTask, Task task) {
-        if (task.getStatement() != null) {
-            existingTask.setStatement(task.getStatement());
-        }
+    private Task createMultipleChoiceTask(Task task) {
+        prepareTaskForCreation(task);
+        task.attachOptionsToTask();
 
-        if (task.getOrder() != null) {
-            adjustTaskOrder(existingTask, task.getOrder());
-            existingTask.setOrder(task.getOrder());
-        }
-
-        if (task.getType() != null)
-            existingTask.setType(task.getType());
-
-        if (task.getCourseId() != null)
-            existingTask.setCourseId(task.getCourseId());
-
-        if (task.getOptions() != null) {
-            if (task.getType() == Type.SINGLE_CHOICE && task.getType().equals(existingTask.getType())) {
-                existingTask.getOptions().clear();
-                existingTask.getOptions().addAll(task.getOptions());
-                attachOptionsToTask(existingTask);
-            }
-        }
+        return taskRepository.save(task);
     }
 
-    private void attachOptionsToTask(Task task) {
-        if (task.getOptions() != null) {
-            task.getOptions().forEach(option -> option.setTask(task));
-        }
+    private void prepareTaskForCreation(Task task) {
+        courseValidator.validateCourseIsInBuildingStatus(task.getCourseId());
+        taskValidator.validateForCreate(task);
+        taskRepository.updateTaskOrderForInsert(task.getCourseId(), task.getOrder());
     }
 }

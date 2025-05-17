@@ -8,7 +8,7 @@ import br.com.alura.AluraFake.task.models.Task;
 import br.com.alura.AluraFake.task.models.TaskOption;
 
 public class TaskMultipleChoiceMapper {
-     public static Task toEntity(TaskMultipleChoiceDTO taskDTO) {
+    public static Task toEntity(TaskMultipleChoiceDTO taskDTO) {
         Task task = new Task(taskDTO.statement(), taskDTO.type(), taskDTO.order(), taskDTO.courseId());
         if (taskDTO.options() != null) {
             List<TaskOption> options = taskDTO.options().stream()

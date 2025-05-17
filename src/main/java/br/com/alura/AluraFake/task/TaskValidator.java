@@ -15,6 +15,13 @@ import br.com.alura.AluraFake.task.models.TaskOption;
 public class TaskValidator {
 
     private final TaskRepository taskRepository;
+    private static final int MAX_TASKS_PER_COURSE = 5;
+    private static final int MIN_SINGLE_CHOICE_OPTIONS = 2;
+    private static final int MIN_MULTIPLE_CHOICE_OPTIONS = 3;
+    private static final int MAX_OPTIONS = 5;
+    private static final int MAX_SINGLE_CHOICE_CORRECT_OPTIONS = 1;
+    private static final int MIN_MULTIPLE_CHOICES_CORRECT_OPTIONS = 2;
+    private static final int MAX_MULTIPLE_CHOICES_CORRECT_OPTIONS = 4;
 
     public TaskValidator(TaskRepository taskRepository) {
         this.taskRepository = taskRepository;
@@ -25,10 +32,18 @@ public class TaskValidator {
         validateOrderSequence(newTask, newTask.getOrder());
         validateUniqueStatementForCreate(newTask);
         if (newTask.isSingleChoice()) {
-            validateSingleChoiceOptions(newTask);
+            validateOptions(newTask,
+                    MAX_SINGLE_CHOICE_CORRECT_OPTIONS,
+                    MIN_SINGLE_CHOICE_OPTIONS,
+                    MAX_OPTIONS,
+                    MAX_SINGLE_CHOICE_CORRECT_OPTIONS);
         }
         if (newTask.isMultipleChoice()) {
-            validateMultipleChoiceOptions(newTask);
+            validateOptions(newTask,
+                    MIN_MULTIPLE_CHOICE_OPTIONS,
+                    MAX_OPTIONS,
+                    MIN_MULTIPLE_CHOICES_CORRECT_OPTIONS,
+                    MAX_MULTIPLE_CHOICES_CORRECT_OPTIONS);
         }
     }
 
@@ -36,16 +51,24 @@ public class TaskValidator {
         validateOrderSequence(newTask, newTask.getOrder());
         validateUniqueStatementForUpdate(newTask);
         if (newTask.isSingleChoice()) {
-            validateSingleChoiceOptions(newTask);
+            validateOptions(newTask,
+                    MAX_SINGLE_CHOICE_CORRECT_OPTIONS,
+                    MIN_SINGLE_CHOICE_OPTIONS,
+                    MAX_OPTIONS,
+                    MAX_SINGLE_CHOICE_CORRECT_OPTIONS);
         }
         if (newTask.isMultipleChoice()) {
-            validateMultipleChoiceOptions(newTask);
+            validateOptions(newTask,
+                    MIN_MULTIPLE_CHOICE_OPTIONS,
+                    MIN_MULTIPLE_CHOICES_CORRECT_OPTIONS,
+                    MAX_OPTIONS,
+                    MAX_MULTIPLE_CHOICES_CORRECT_OPTIONS);
         }
     }
 
     private void validateTaskLimit(Long courseId) {
         long taskCount = taskRepository.countByCourseId(courseId);
-        if (taskCount >= 5) {
+        if (taskCount >= MAX_TASKS_PER_COURSE) {
             throw new TaskException("Task limit reached for course " + courseId + ", maximum is 5.",
                     HttpStatus.BAD_REQUEST);
         }
@@ -55,8 +78,9 @@ public class TaskValidator {
         if (order == 1)
             return;
 
-        Task previousTask = taskRepository.findByCourseIdAndOrder(task.getCourseId(), order - 1);
-        Task nextTask = taskRepository.findByCourseIdAndOrder(task.getCourseId(), order);
+        Task previousTask = taskRepository.findTopByCourseIdAndOrderAndIdNot(task.getCourseId(), order - 1,
+                task.getId());
+        Task nextTask = taskRepository.findTopByCourseIdAndOrderAndIdNot(task.getCourseId(), order, task.getId());
 
         if (previousTask == null) {
             throw new TaskException("Task order is not sequential.", HttpStatus.BAD_REQUEST);
@@ -67,9 +91,7 @@ public class TaskValidator {
     }
 
     private void validateUniqueStatementForCreate(Task task) {
-        List<Task> existingTasks = taskRepository.findByCourseId(task.getCourseId());
-        boolean statementExists = existingTasks.stream()
-                .anyMatch(t -> t.getStatement().equals(task.getStatement()));
+        boolean statementExists = taskRepository.existsByCourseIdAndStatement(task.getCourseId(), task.getStatement());
 
         if (statementExists) {
             throw new TaskException("Task statement already exists.", HttpStatus.CONFLICT);
@@ -77,67 +99,40 @@ public class TaskValidator {
     }
 
     private void validateUniqueStatementForUpdate(Task task) {
-        List<Task> existingTasks = taskRepository.findByCourseId(task.getCourseId());
-        boolean statementExists = existingTasks.stream()
-                .anyMatch(t -> !t.getId().equals(task.getId()) &&
-                        t.getStatement().equals(task.getStatement()));
+
+        boolean statementExists = taskRepository.existsByCourseIdAndStatementAndIdNot(task.getCourseId(),
+                task.getStatement(), task.getId());
 
         if (statementExists) {
             throw new TaskException("Task statement already exists.", HttpStatus.CONFLICT);
         }
     }
 
-    private void validateSingleChoiceOptions(Task task) {
+    private void validateOptions(Task task, int minOptions, int maxOptions, int minCorrect, int maxCorrect) {
         List<TaskOption> options = task.getOptions();
         Set<String> seenTexts = new HashSet<>();
 
-        if (options == null || options.isEmpty() || options.size() < 2 || options.size() > 5) {
-            throw new TaskException("Single choice task must have between 2 and 5 options.",
+        if (options == null || options.isEmpty() || options.size() < minOptions || options.size() > maxOptions) {
+            throw new TaskException("Task must have between " + minOptions + " and " + maxOptions + " options.",
                     HttpStatus.BAD_REQUEST);
         }
 
-        if (options.stream().filter(TaskOption::getCorrect).count() != 1) {
-            throw new TaskException("Single choice task must have exactly one correct option.",
+        long correctCount = options.stream().filter(TaskOption::getCorrect).count();
+        if (correctCount < minCorrect || correctCount > maxCorrect) {
+            if (minCorrect == MAX_SINGLE_CHOICE_CORRECT_OPTIONS && minCorrect == maxCorrect) {
+                throw new TaskException(
+                        "Task must have exactly " + MAX_SINGLE_CHOICE_CORRECT_OPTIONS + " correct option.",
+                        HttpStatus.BAD_REQUEST);
+            }
+            throw new TaskException(
+                    "Task must have between " + MIN_MULTIPLE_CHOICES_CORRECT_OPTIONS + " and "
+                            + MAX_MULTIPLE_CHOICES_CORRECT_OPTIONS + " correct options.",
                     HttpStatus.BAD_REQUEST);
         }
 
         for (TaskOption option : options) {
 
-            if (task.getStatement().toLowerCase().equals(option.getTaskOption().toLowerCase())) {
-                throw new TaskException("Option text cannot be the same as the task statement.",
-                        HttpStatus.BAD_REQUEST);
-            }
-
-            if (!seenTexts.add(option.getTaskOption().toLowerCase())) {
-                throw new TaskException("Duplicate option text found: " + option.getTaskOption(),
-                        HttpStatus.BAD_REQUEST);
-            }
-        }
-
-    }
-
-     private void validateMultipleChoiceOptions(Task task) {
-        List<TaskOption> options = task.getOptions();
-        Set<String> seenTexts = new HashSet<>();
-
-        if (options == null || options.isEmpty() || options.size() < 3 || options.size() > 5) {
-            throw new TaskException("Multiple choice task must have between 3 and 5 options.",
-                    HttpStatus.BAD_REQUEST);
-        }
-
-        if (options.stream().filter(TaskOption::getCorrect).count() < 2) {
-            throw new TaskException("Multiple choice task must have 2 or more correct options, up to 4.",
-                    HttpStatus.BAD_REQUEST);
-        }
-
-        if (options.stream().filter(TaskOption::getCorrect).count() == options.size()) {
-            throw new TaskException("Multiple choice task must have at least 1 incorrect option.",
-                    HttpStatus.BAD_REQUEST);
-        }
-
-        for (TaskOption option : options) {
-
-            if (task.getStatement().toLowerCase().equals(option.getTaskOption().toLowerCase())) {
+            if (task.getStatement().equalsIgnoreCase(option.getTaskOption())) {
                 throw new TaskException("Option text cannot be the same as the task statement.",
                         HttpStatus.BAD_REQUEST);
             }

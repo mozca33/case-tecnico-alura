@@ -2,18 +2,19 @@ package br.com.alura.AluraFake.task.models;
 
 import java.util.List;
 
-import br.com.alura.AluraFake.course.Course;
+import org.springframework.http.HttpStatus;
+
 import br.com.alura.AluraFake.task.Type;
+import br.com.alura.AluraFake.task.exceptions.TaskException;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 
 @Entity
@@ -31,7 +32,7 @@ public class Task {
     @Column(nullable = false)
     private Type type;
 
-    @OneToMany(mappedBy = "task", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "task", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<TaskOption> options;
 
     public Task() {
@@ -63,9 +64,8 @@ public class Task {
     public boolean isSameAs(Task task) {
         boolean result = this.statement.equals(task.statement) &&
                 this.order.equals(task.order) &&
-                this.type.equals(task.type) &&
                 this.courseId.equals(task.courseId);
-        
+
         if (this.isSingleChoice() || this.isMultipleChoice()) {
             return optionsAreSame(task.getOptions()) && result;
         }
@@ -138,7 +138,7 @@ public class Task {
     }
 
     private boolean optionsAreSame(List<TaskOption> options) {
-        if (options == null){
+        if (options == null) {
             return false;
         }
 
@@ -147,13 +147,53 @@ public class Task {
         }
 
         for (TaskOption option : options) {
-            if (this.options.stream().noneMatch(o -> 
-                    o.getTaskOption().equals(option.getTaskOption()) &&
+            if (this.options.stream().noneMatch(o -> o.getTaskOption().equals(option.getTaskOption()) &&
                     o.getCorrect().equals(option.getCorrect()))) {
                 return false;
             }
         }
-        
+
         return true;
+    }
+
+    public void ensureSameTypeAs(Task other) {
+        if (!this.type.equals(other.getType())) {
+            throw new TaskException(
+                    "Task type mismatch. Expected " + this.getType() + " type but got " + other.getType() + " type.",
+                    HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    public Integer mergeFrom(Task other) {
+        Integer newOrder = null;
+
+        if (other.getStatement() != null) {
+            this.setStatement(other.getStatement());
+        }
+
+        if (other.getOrder() != null) {
+            newOrder = other.getOrder();
+        }
+
+        if (other.getCourseId() != null)
+            this.setCourseId(other.getCourseId());
+
+        if (other.getOptions() != null) {
+            if ((other.getType() == Type.SINGLE_CHOICE
+                    || other.getType() == Type.MULTIPLE_CHOICE)
+                    && other.getType().equals(this.getType())) {
+                this.getOptions().clear();
+                this.getOptions().addAll(other.getOptions());
+                this.attachOptionsToTask();
+            }
+        }
+
+        return newOrder;
+    }
+
+    public void attachOptionsToTask() {
+        if (this.getOptions() != null) {
+            this.getOptions().forEach(option -> option.setTask(this));
+        }
     }
 }

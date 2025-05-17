@@ -14,6 +14,6 @@ public record TaskPatchDTO(
     }
 
     public TaskPatchDTO withType(Type newType) {
-        return new TaskPatchDTO( this.statement, newType, this.order, this.courseId, this.options);
+        return new TaskPatchDTO(this.statement, newType, this.order, this.courseId, this.options);
     }
 }

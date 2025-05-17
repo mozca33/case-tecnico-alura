@@ -12,6 +12,9 @@ import br.com.alura.AluraFake.task.models.Task;
 
 @Repository
 public interface TaskRepository extends JpaRepository<Task, Long> {
+
+        boolean existsByCourseIdAndStatementAndIdNot(Long courseId, String statement, Long id);
+
         boolean existsByCourseIdAndStatement(Long id, String statement);
 
         boolean existsByCourseIdAndOrder(Long courseId, Integer order);
@@ -30,18 +33,17 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
          */
         void updateTaskOrderForInsert(@Param("courseId") Long courseId, @Param("newOrder") Integer newOrder);
 
-        @Modifying
+        @Modifying(clearAutomatically = true)
         @Query("UPDATE Task t SET t.order = t.order + 1 WHERE t.courseId = :courseId AND t.order BETWEEN :start AND :end")
         void incrementOrderRange(@Param("courseId") Long courseId, @Param("start") Integer start,
                         @Param("end") Integer end);
 
-        @Modifying
+        @Modifying(clearAutomatically = true)
         @Query("UPDATE Task t SET t.order = t.order - 1 WHERE t.courseId = :courseId AND t.order BETWEEN :start AND :end")
         void decrementOrderRange(@Param("courseId") Long courseId, @Param("start") Integer start,
                         @Param("end") Integer end);
 
         long countByCourseId(Long courseId);
 
-        Task findByCourseIdAndOrder(Long id, int i);
-
+        Task findTopByCourseIdAndOrderAndIdNot(Long courseId, Integer order, Long idToIgnore);
 }
