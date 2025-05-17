@@ -122,12 +122,12 @@ public class TaskValidator {
         }
 
         if (options.stream().filter(TaskOption::getCorrect).count() < 2) {
-            throw new TaskException("Multiple choice task must have two or more correct options, up to 4.",
+            throw new TaskException("Multiple choice task must have 2 or more correct options, up to 4.",
                     HttpStatus.BAD_REQUEST);
         }
 
-        if (options.stream().filter(TaskOption::getCorrect).count() == 5) {
-            throw new TaskException("Multiple choice task must have at least one incorrect option.",
+        if (options.stream().filter(TaskOption::getCorrect).count() == options.size()) {
+            throw new TaskException("Multiple choice task must have at least 1 incorrect option.",
                     HttpStatus.BAD_REQUEST);
         }
 
