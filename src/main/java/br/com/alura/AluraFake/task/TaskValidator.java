@@ -79,7 +79,7 @@ public class TaskValidator {
     private void validateUniqueStatementForUpdate(Task task) {
         List<Task> existingTasks = taskRepository.findByCourseId(task.getCourseId());
         boolean statementExists = existingTasks.stream()
-                .anyMatch(t -> t.getId().equals(task.getId()) &&
+                .anyMatch(t -> !t.getId().equals(task.getId()) &&
                         t.getStatement().equals(task.getStatement()));
 
         if (statementExists) {
