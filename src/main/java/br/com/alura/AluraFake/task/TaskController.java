@@ -13,7 +13,6 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
 import br.com.alura.AluraFake.task.dto.BaseTaskDTO;
 import br.com.alura.AluraFake.task.dto.MultipleChoiceTaskDTO;
 import br.com.alura.AluraFake.task.dto.OpenTextTaskDTO;
@@ -27,9 +26,11 @@ import jakarta.validation.Valid;
 public class TaskController {
 
         private final TaskService taskService;
+        private final TaskMapper taskMapper;
 
-        public TaskController(TaskService taskService) {
+        public TaskController(TaskService taskService, TaskMapper taskMapper) {
                 this.taskService = taskService;
+                this.taskMapper = taskMapper;
         }
 
         @GetMapping("/{id}")
@@ -41,14 +42,14 @@ public class TaskController {
         public ResponseEntity<BaseTaskDTO> newOpenTextTask(@Valid @RequestBody OpenTextTaskDTO taskDTO) {
                 return ResponseEntity.status(HttpStatus.CREATED)
                                 .body(TaskMapper.toDTO(taskService
-                                                .createTask(TaskMapper.toEntity(taskDTO.withType(Type.OPEN_TEXT)))));
+                                                .createTask(taskMapper.toEntity(taskDTO.withType(Type.OPEN_TEXT)))));
         }
 
         @PostMapping("/new/singlechoice")
         public ResponseEntity<BaseTaskDTO> newSingleChoiceTask(@Valid @RequestBody SingleChoiceTaskDTO taskDTO) {
                 return ResponseEntity.status(HttpStatus.CREATED)
                                 .body(TaskMapper.toDTO(
-                                                taskService.createTask(TaskMapper
+                                                taskService.createTask(taskMapper
                                                                 .toEntity(taskDTO.withType(Type.SINGLE_CHOICE)))));
         }
 
@@ -57,7 +58,7 @@ public class TaskController {
                 return ResponseEntity.status(HttpStatus.CREATED)
                                 .body(TaskMapper.toDTO(
                                                 taskService.createTask(
-                                                                TaskMapper.toEntity(taskDTO
+                                                                taskMapper.toEntity(taskDTO
                                                                                 .withType(Type.MULTIPLE_CHOICE)))));
         }
 
@@ -66,14 +67,14 @@ public class TaskController {
                         @Valid @RequestBody OpenTextTaskDTO taskDTO) {
                 return ResponseEntity.ok(
                                 TaskMapper.toDTO(taskService.updateTask(
-                                                TaskMapper.toEntity(id, taskDTO.withType(Type.OPEN_TEXT)))));
+                                                taskMapper.toEntity(id, taskDTO.withType(Type.OPEN_TEXT)))));
         }
 
         @PutMapping("/singlechoice/{id}")
         public ResponseEntity<BaseTaskDTO> updateSingleChoiceTask(@PathVariable Long id,
                         @Valid @RequestBody SingleChoiceTaskDTO taskDTO) {
                 return ResponseEntity.ok(TaskMapper.toDTO(
-                                taskService.updateTask(TaskMapper.toEntity(id,
+                                taskService.updateTask(taskMapper.toEntity(id,
                                                 taskDTO.withType(Type.SINGLE_CHOICE)))));
         }
 
@@ -81,7 +82,7 @@ public class TaskController {
         public ResponseEntity<BaseTaskDTO> updateMultipleChoiceTask(@PathVariable Long id,
                         @Valid @RequestBody MultipleChoiceTaskDTO taskDTO) {
                 return ResponseEntity.ok(TaskMapper.toDTO(
-                                taskService.updateTask(TaskMapper.toEntity(id,
+                                taskService.updateTask(taskMapper.toEntity(id,
                                                 taskDTO.withType(Type.MULTIPLE_CHOICE)))));
         }
 
@@ -89,7 +90,7 @@ public class TaskController {
         public ResponseEntity<BaseTaskDTO> patchOpenTextTask(@PathVariable Long id,
                         @RequestBody TaskPatchDTO taskPatchDTO) {
                 return ResponseEntity.ok(TaskMapper.toDTO(taskService
-                                .updateTask(TaskMapper.toPartialEntity(id, taskPatchDTO.withType(Type.OPEN_TEXT)))));
+                                .updateTask(taskMapper.toPartialEntity(id, taskPatchDTO.withType(Type.OPEN_TEXT)))));
         }
 
         @PatchMapping("/singlechoice/{id}")
@@ -97,7 +98,7 @@ public class TaskController {
                         @RequestBody TaskPatchDTO taskPatchDTO) {
                 return ResponseEntity
                                 .ok(TaskMapper.toDTO(taskService
-                                                .updateTask(TaskMapper.toPartialEntity(id,
+                                                .updateTask(taskMapper.toPartialEntity(id,
                                                                 taskPatchDTO.withType(Type.SINGLE_CHOICE)))));
         }
 
@@ -105,7 +106,7 @@ public class TaskController {
         public ResponseEntity<BaseTaskDTO> patchMultipleChoiceTask(@PathVariable Long id,
                         @Valid @RequestBody TaskPatchDTO taskDTO) {
                 return ResponseEntity.ok(TaskMapper.toDTO(
-                                taskService.updateTask(TaskMapper.toPartialEntity(id,
+                                taskService.updateTask(taskMapper.toPartialEntity(id,
                                                 taskDTO.withType(Type.MULTIPLE_CHOICE)))));
         }
 
