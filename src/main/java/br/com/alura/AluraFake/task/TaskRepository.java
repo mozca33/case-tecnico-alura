@@ -28,7 +28,7 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
         List<Task> findByCourseId(Long courseId);
 
         @Modifying
-        @Query("UPDATE Task t SET t.order = t.order + 1 WHERE t.courseId = :courseId AND t.order >= :newOrder")
+        @Query("UPDATE Task t SET t.order = t.order + 1 WHERE t.course.id = :courseId AND t.order >= :newOrder")
         /***
          * Update the order of tasks when a new task is inserted.
          * This method increments the order of all tasks that have an order greater than
@@ -40,12 +40,12 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
         void updateTaskOrderForInsert(@Param("courseId") Long courseId, @Param("newOrder") Integer newOrder);
 
         @Modifying(clearAutomatically = true)
-        @Query("UPDATE Task t SET t.order = t.order + 1 WHERE t.courseId = :courseId AND t.order BETWEEN :start AND :end")
+        @Query("UPDATE Task t SET t.order = t.order + 1 WHERE t.course.id = :courseId AND t.order BETWEEN :start AND :end")
         void incrementOrderRange(@Param("courseId") Long courseId, @Param("start") Integer start,
                         @Param("end") Integer end);
 
         @Modifying(clearAutomatically = true)
-        @Query("UPDATE Task t SET t.order = t.order - 1 WHERE t.courseId = :courseId AND t.order BETWEEN :start AND :end")
+        @Query("UPDATE Task t SET t.order = t.order - 1 WHERE t.course.id = :courseId AND t.order BETWEEN :start AND :end")
         void decrementOrderRange(@Param("courseId") Long courseId, @Param("start") Integer start,
                         @Param("end") Integer end);
 

@@ -2,6 +2,7 @@ package br.com.alura.AluraFake.task.dto;
 
 import java.util.List;
 
+import br.com.alura.AluraFake.course.model.Course;
 import br.com.alura.AluraFake.task.Type;
 import br.com.alura.AluraFake.task.mapper.TaskOptionMapper;
 import br.com.alura.AluraFake.task.models.Task;
@@ -17,7 +18,7 @@ public record MultipleChoiceTaskDTO(
         @Size(min = 4, max = 255, message = "Task statement must be between 4 and 255 characters") @NotBlank(message = "Task statement cannot be null or blank") String statement,
         @NotNull(message = "Order cannot be null or blank") @Min(value = 1, message = "Order must be greater than or equal to 1") Integer order,
         Type type,
-        @Size(min = 3, max = 5, message = "The task must have from 2 to 5 alternatives.") List<@Valid TaskOptionDTO> options)
+        @Size(min = 3, max = 5, message = "The task must have from 3 to 5 options.") List<@Valid TaskOptionDTO> options)
         implements BaseTaskDTO {
     public MultipleChoiceTaskDTO {
     }
@@ -28,22 +29,30 @@ public record MultipleChoiceTaskDTO(
     }
 
     @Override
-    public Task toEntity() {
-        Task task = new Task(id(), statement(), type(), order(), courseId());
+    public Task toEntity(Course course) {
+        Task task = new Task(id(), statement(), type(), order(), course);
         task.setOptions(TaskOptionMapper.toEntityList(options()));
         return task;
     }
 
     @Override
-    public Task toEntity(Long id) {
-        Task task = new Task(id, statement(), type(), order(), courseId());
+    public Task toEntity(Long id, Course course) {
+        Task task = new Task(id, statement(), type(), order(), course);
         task.setOptions(TaskOptionMapper.toEntityList(options()));
         return task;
     }
 
     @Override
     public Task toPartialEntity(Long id) {
-        Task task = new Task(id, statement(), type(), order(), courseId());
+        Task task = new Task(id, statement(), type(), order());
+        task.setOptions(TaskOptionMapper.toEntityList(options()));
+
+        return task;
+    }
+
+    @Override
+    public Task toPartialEntity(Long id, Course course) {
+        Task task = new Task(id, statement(), type(), order(), course);
         task.setOptions(TaskOptionMapper.toEntityList(options()));
 
         return task;

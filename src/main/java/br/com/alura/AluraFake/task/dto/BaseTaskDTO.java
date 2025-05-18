@@ -1,5 +1,6 @@
 package br.com.alura.AluraFake.task.dto;
 
+import br.com.alura.AluraFake.course.model.Course;
 import br.com.alura.AluraFake.task.Type;
 import br.com.alura.AluraFake.task.models.Task;
 
@@ -14,11 +15,13 @@ public interface BaseTaskDTO {
 
     Type type();
 
-    Task toEntity();
+    Task toEntity(Course course);
 
-    Task toEntity(Long id);
+    Task toEntity(Long id, Course course);
 
     Task toPartialEntity(Long id);
+
+    Task toPartialEntity(Long id, Course course);
 
     BaseTaskDTO toDTO();
 

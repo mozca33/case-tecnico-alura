@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.http.HttpStatus;
 
+import br.com.alura.AluraFake.course.model.Course;
 import br.com.alura.AluraFake.task.Type;
 import br.com.alura.AluraFake.task.dto.BaseTaskDTO;
 import br.com.alura.AluraFake.task.dto.MultipleChoiceTaskDTO;
@@ -19,6 +20,8 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 
 @Entity
@@ -36,13 +39,24 @@ public class Task {
     @Column(nullable = false)
     private Type type;
 
-    @OneToMany(mappedBy = "task", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @ManyToOne
+    @JoinColumn(name = "course_id")
+    private Course course;
+    @OneToMany(mappedBy = "task", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<TaskOption> options;
 
     public Task() {
     }
 
-    public Task(Long id, String statement, Type type, Integer order, Long courseId) {
+    public Task(Long id, String statement, Type type, Integer order, Course course) {
+        this.id = id;
+        this.statement = statement;
+        this.type = type;
+        this.order = order;
+        this.course = course;
+    }
+
+    public Task(Long id, String statement, Type type, Integer order) {
         this.id = id;
         this.statement = statement;
         this.type = type;
@@ -53,7 +67,7 @@ public class Task {
     public boolean isSameAs(Task task) {
         boolean result = this.statement.equals(task.statement) &&
                 this.order.equals(task.order) &&
-                this.courseId.equals(task.courseId);
+                this.course.equals(task.course);
 
         if (this.isSingleChoice() || this.isMultipleChoice()) {
             return optionsAreSame(task.getOptions()) && result;
@@ -66,7 +80,7 @@ public class Task {
         return this.statement == null &&
                 this.type == null &&
                 this.order == null &&
-                this.courseId == null &&
+                this.course == null &&
                 this.id == null;
     }
 
@@ -82,12 +96,12 @@ public class Task {
         return id;
     }
 
-    public Long getCourseId() {
-        return courseId;
+    public Course getCourse() {
+        return course;
     }
 
-    public void setCourseId(Long courseId) {
-        this.courseId = courseId;
+    public void setCourse(Course course) {
+        this.course = course;
     }
 
     public String getStatement() {
@@ -164,8 +178,8 @@ public class Task {
             newOrder = other.getOrder();
         }
 
-        if (other.getCourseId() != null)
-            this.setCourseId(other.getCourseId());
+        if (other.getCourse() != null)
+            this.setCourse(other.getCourse());
 
         if (other.getOptions() != null) {
             if ((other.getType() == Type.SINGLE_CHOICE
@@ -188,10 +202,10 @@ public class Task {
 
     public BaseTaskDTO toDTO() {
         return switch (this.type) {
-            case OPEN_TEXT -> new OpenTextTaskDTO(id, courseId, statement, order, type);
-            case SINGLE_CHOICE -> new SingleChoiceTaskDTO(id, courseId, statement, order, type,
+            case OPEN_TEXT -> new OpenTextTaskDTO(id, course.getId(), statement, order, type);
+            case SINGLE_CHOICE -> new SingleChoiceTaskDTO(id, course.getId(), statement, order, type,
                     options.stream().map(TaskOption::toDTO).toList());
-            case MULTIPLE_CHOICE -> new MultipleChoiceTaskDTO(id, courseId, statement, order, type,
+            case MULTIPLE_CHOICE -> new MultipleChoiceTaskDTO(id, course.getId(), statement, order, type,
                     options.stream().map(TaskOption::toDTO).toList());
         };
     }

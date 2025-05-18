@@ -28,7 +28,7 @@ public class TaskValidator {
     }
 
     public void validateForCreate(Task newTask) {
-        validateTaskLimit(newTask.getCourseId());
+        validateTaskLimit(newTask.getCourse().getId());
         validateOrderSequence(newTask, newTask.getOrder());
         validateUniqueStatementForCreate(newTask);
         if (newTask.isSingleChoice()) {
@@ -80,12 +80,12 @@ public class TaskValidator {
             return;
 
         if (task.getId() != null) {
-            previousTask = taskRepository.findTopByCourseIdAndOrderAndIdNot(task.getCourseId(), order - 1,
+            previousTask = taskRepository.findTopByCourseIdAndOrderAndIdNot(task.getCourse().getId(), order - 1,
                     task.getId());
-            nextTask = taskRepository.findTopByCourseIdAndOrderAndIdNot(task.getCourseId(), order, task.getId());
+            nextTask = taskRepository.findTopByCourseIdAndOrderAndIdNot(task.getCourse().getId(), order, task.getId());
         } else {
-            previousTask = taskRepository.findTopByCourseIdAndOrder(task.getCourseId(), order - 1);
-            nextTask = taskRepository.findTopByCourseIdAndOrder(task.getCourseId(), order);
+            previousTask = taskRepository.findTopByCourseIdAndOrder(task.getCourse().getId(), order - 1);
+            nextTask = taskRepository.findTopByCourseIdAndOrder(task.getCourse().getId(), order);
         }
 
         if (previousTask == null) {
@@ -97,7 +97,8 @@ public class TaskValidator {
     }
 
     private void validateUniqueStatementForCreate(Task task) {
-        boolean statementExists = taskRepository.existsByCourseIdAndStatement(task.getCourseId(), task.getStatement());
+        boolean statementExists = taskRepository.existsByCourseIdAndStatement(task.getCourse().getId(),
+                task.getStatement());
 
         if (statementExists) {
             throw new TaskException("Task statement already exists.", HttpStatus.CONFLICT);
@@ -106,7 +107,7 @@ public class TaskValidator {
 
     private void validateUniqueStatementForUpdate(Task task) {
 
-        boolean statementExists = taskRepository.existsByCourseIdAndStatementAndIdNot(task.getCourseId(),
+        boolean statementExists = taskRepository.existsByCourseIdAndStatementAndIdNot(task.getCourse().getId(),
                 task.getStatement(), task.getId());
 
         if (statementExists) {

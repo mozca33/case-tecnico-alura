@@ -2,6 +2,7 @@ package br.com.alura.AluraFake.task.dto;
 
 import java.util.List;
 
+import br.com.alura.AluraFake.course.model.Course;
 import br.com.alura.AluraFake.task.Type;
 import br.com.alura.AluraFake.task.mapper.TaskOptionMapper;
 import br.com.alura.AluraFake.task.models.Task;
@@ -28,24 +29,30 @@ public record SingleChoiceTaskDTO(
     }
 
     @Override
-    public Task toEntity() {
-        Task task = new Task(id(), statement(), type(), order(), courseId());
+    public Task toEntity(Course course) {
+        Task task = new Task(id(), statement(), type(), order(), course);
         task.setOptions(TaskOptionMapper.toEntityList(options()));
-
         return task;
     }
 
     @Override
-    public Task toEntity(Long id) {
-        Task task = new Task(id, statement(), type(), order(), courseId());
+    public Task toEntity(Long id, Course course) {
+        Task task = new Task(id, statement(), type(), order(), course);
         task.setOptions(TaskOptionMapper.toEntityList(options()));
-
         return task;
     }
 
     @Override
     public Task toPartialEntity(Long id) {
-        Task task = new Task(id, statement(), type(), order(), courseId());
+        Task task = new Task(id, statement(), type(), order());
+        task.setOptions(TaskOptionMapper.toEntityList(options()));
+
+        return task;
+    }
+
+    @Override
+    public Task toPartialEntity(Long id, Course course) {
+        Task task = new Task(id, statement(), type(), order(), course);
         task.setOptions(TaskOptionMapper.toEntityList(options()));
 
         return task;
