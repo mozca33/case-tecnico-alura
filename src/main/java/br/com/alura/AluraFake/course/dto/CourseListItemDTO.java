@@ -1,7 +1,8 @@
-package br.com.alura.AluraFake.course;
+package br.com.alura.AluraFake.course.dto;
 
 import java.io.Serializable;
 
+import br.com.alura.AluraFake.course.Status;
 import br.com.alura.AluraFake.course.model.Course;
 
 public class CourseListItemDTO implements Serializable {
