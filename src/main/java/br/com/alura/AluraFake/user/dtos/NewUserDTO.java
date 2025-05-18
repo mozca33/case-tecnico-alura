@@ -1,7 +1,10 @@
-package br.com.alura.AluraFake.user;
+package br.com.alura.AluraFake.user.dtos;
 
 import jakarta.validation.constraints.*;
 import org.hibernate.validator.constraints.Length;
+
+import br.com.alura.AluraFake.user.enums.Role;
+import br.com.alura.AluraFake.user.models.User;
 
 public class NewUserDTO {
 
@@ -16,7 +19,8 @@ public class NewUserDTO {
     @Pattern(regexp = "^$|^.{6}$", message = "Password must be exactly 6 characters long if provided")
     private String password;
 
-    public NewUserDTO() {}
+    public NewUserDTO() {
+    }
 
     public String getName() {
         return name;

@@ -1,6 +1,9 @@
-package br.com.alura.AluraFake.user;
+package br.com.alura.AluraFake.user.dtos;
 
 import java.io.Serializable;
+
+import br.com.alura.AluraFake.user.enums.Role;
+import br.com.alura.AluraFake.user.models.User;
 
 public class UserListItemDTO implements Serializable {
 

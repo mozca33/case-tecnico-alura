@@ -1,5 +1,6 @@
-package br.com.alura.AluraFake.user;
+package br.com.alura.AluraFake.user.models;
 
+import br.com.alura.AluraFake.user.enums.Role;
 import br.com.alura.AluraFake.util.PasswordGeneration;
 import jakarta.persistence.*;
 
@@ -20,7 +21,8 @@ public class User {
     private String password;
 
     @Deprecated
-    public User() {}
+    public User() {
+    }
 
     public User(String name, String email, Role role, String password) {
         this.name = name;
