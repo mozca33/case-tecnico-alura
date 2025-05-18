@@ -19,12 +19,18 @@ public class TaskMapper {
     }
 
     public Task toEntity(BaseTaskDTO dto) {
+        if (dto == null) {
+            return null;
+        }
         Course course = courseService.getById(dto.courseId());
 
         return dto.toEntity(course);
     }
 
     public Task toEntity(Long id, BaseTaskDTO dto) {
+        if (dto == null) {
+            return null;
+        }
         Course course = courseService.getById(dto.courseId());
 
         return dto.toEntity(id, course);
@@ -39,11 +45,14 @@ public class TaskMapper {
         return dto.toPartialEntity(id);
     }
 
-    public static BaseTaskDTO toDTO(Task task) {
+    public BaseTaskDTO toDTO(Task task) {
+        if (task == null) {
+            return null;
+        }
         return task.toDTO();
     }
 
-    public static List<BaseTaskDTO> toDTO(List<Task> tasks) {
+    public List<BaseTaskDTO> toDTO(List<Task> tasks) {
         return tasks.stream().map(Task::toDTO).toList();
     }
 

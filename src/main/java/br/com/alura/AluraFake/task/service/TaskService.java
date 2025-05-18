@@ -49,7 +49,7 @@ public class TaskService {
         taskValidator.validatePositiveId(task.getId());
         Task existingTask = taskRepository.findById(task.getId())
                 .orElseThrow(() -> new TaskException("Task " + task.getId() + " not found.", HttpStatus.NOT_FOUND));
-        task.ensureSameTypeAs(existingTask);
+        existingTask.ensureSameTypeAs(task);
 
         if (existingTask.isSameAs(task) || task.isEmpty()) {
             return existingTask;
