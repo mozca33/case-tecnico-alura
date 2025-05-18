@@ -1,0 +1,205 @@
+package br.com.alura.AluraFake.course.service;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
+
+import java.util.List;
+import java.util.Optional;
+
+import br.com.alura.AluraFake.course.enums.Status;
+import br.com.alura.AluraFake.course.exceptions.CourseException;
+import br.com.alura.AluraFake.course.model.Course;
+import br.com.alura.AluraFake.course.repository.CourseRepository;
+import br.com.alura.AluraFake.course.validator.CourseValidator;
+import br.com.alura.AluraFake.task.exceptions.TaskException;
+import br.com.alura.AluraFake.user.models.User;
+import br.com.alura.AluraFake.user.validator.UserValidator;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.springframework.http.HttpStatus;
+
+class CourseServiceTest {
+
+    private CourseRepository courseRepository;
+    private CourseValidator courseValidator;
+    private UserValidator userValidator;
+    private CourseService courseService;
+
+    @BeforeEach
+    void setup() {
+        courseRepository = mock(CourseRepository.class);
+        courseValidator = mock(CourseValidator.class);
+        userValidator = mock(UserValidator.class);
+        courseService = new CourseService(courseRepository, courseValidator, userValidator);
+    }
+
+    @Test
+    void createCourse_shouldSaveAndReturnCourse_whenValid() {
+        User instructor = mock(User.class);
+        when(instructor.isInstructor()).thenReturn(true);
+
+        Course course = new Course("Java Basics", "Intro to Java", instructor);
+
+        when(courseRepository.existsByTitle("Java Basics")).thenReturn(false);
+        doNothing().when(userValidator).validateUserIsInstructor(instructor);
+        when(courseRepository.save(course)).thenReturn(course);
+
+        Course created = courseService.createCourse(course);
+
+        assertEquals(course, created);
+        verify(courseRepository).existsByTitle("Java Basics");
+        verify(userValidator).validateUserIsInstructor(instructor);
+        verify(courseRepository).save(course);
+    }
+
+    @Test
+    void createCourse_shouldThrowConflictException_whenTitleExists() {
+        User instructor = mock(User.class);
+        when(instructor.isInstructor()).thenReturn(true);
+
+        Course course = new Course("Java Basics", "Intro to Java", instructor);
+
+        when(courseRepository.existsByTitle("Java Basics")).thenReturn(true);
+
+        CourseException ex = assertThrows(CourseException.class, () -> courseService.createCourse(course));
+        assertEquals(HttpStatus.CONFLICT, ex.getStatus());
+        assertTrue(ex.getMessage().contains("already exists"));
+
+        verify(courseRepository).existsByTitle("Java Basics");
+        verify(userValidator, never()).validateUserIsInstructor(any());
+        verify(courseRepository, never()).save(any());
+    }
+
+    @Test
+    void createCourse_shouldPropagateException_whenUserValidatorFails() {
+        User instructor = mock(User.class);
+        when(instructor.isInstructor()).thenReturn(true);
+
+        Course course = new Course("Java Basics", "Intro to Java", instructor);
+
+        when(courseRepository.existsByTitle("Java Basics")).thenReturn(false);
+        doThrow(new CourseException("Invalid instructor", HttpStatus.BAD_REQUEST))
+                .when(userValidator).validateUserIsInstructor(instructor);
+
+        CourseException ex = assertThrows(CourseException.class, () -> courseService.createCourse(course));
+        assertEquals("Invalid instructor", ex.getMessage());
+
+        verify(courseRepository).existsByTitle("Java Basics");
+        verify(userValidator).validateUserIsInstructor(instructor);
+        verify(courseRepository, never()).save(any());
+    }
+
+    @Test
+    void getById_shouldReturnCourse_whenFound() {
+        User instructor = mock(User.class);
+        when(instructor.isInstructor()).thenReturn(true);
+
+        Course course = new Course("Title", "Desc", instructor);
+
+        when(courseRepository.findById(1L)).thenReturn(Optional.of(course));
+
+        Course result = courseService.getById(1L);
+
+        assertEquals(course, result);
+        verify(courseRepository).findById(1L);
+    }
+
+    @Test
+    void getById_shouldThrowBadRequest_whenIdNotPositive() {
+        TaskException ex = assertThrows(TaskException.class, () -> courseService.getById(0L));
+        assertEquals(HttpStatus.BAD_REQUEST, ex.getStatus());
+        assertTrue(ex.getMessage().contains("must be a positive"));
+    }
+
+    @Test
+    void getById_shouldThrowNotFound_whenCourseDoesNotExist() {
+        when(courseRepository.findById(99L)).thenReturn(Optional.empty());
+
+        CourseException ex = assertThrows(CourseException.class, () -> courseService.getById(99L));
+        assertEquals(HttpStatus.NOT_FOUND, ex.getStatus());
+        assertTrue(ex.getMessage().contains("not found"));
+
+        verify(courseRepository).findById(99L);
+    }
+
+    @Test
+    void getAllCourses_shouldReturnListOfCourses() {
+        User instructor = mock(User.class);
+        when(instructor.isInstructor()).thenReturn(true);
+
+        Course course1 = new Course("Title1", "Desc1", instructor);
+        Course course2 = new Course("Title2", "Desc2", instructor);
+
+        when(courseRepository.findAll()).thenReturn(List.of(course1, course2));
+
+        List<Course> all = courseService.getAllCourses();
+
+        assertEquals(2, all.size());
+        assertTrue(all.contains(course1));
+        assertTrue(all.contains(course2));
+
+        verify(courseRepository).findAll();
+    }
+
+    @Test
+    void getAllCourses_shouldReturnEmptyList_whenNoCourses() {
+        when(courseRepository.findAll()).thenReturn(List.of());
+
+        List<Course> all = courseService.getAllCourses();
+
+        assertTrue(all.isEmpty());
+        verify(courseRepository).findAll();
+    }
+
+    @Test
+    void publishCourse_shouldSetStatusPublishedAndSave() {
+        User instructor = mock(User.class);
+        when(instructor.isInstructor()).thenReturn(true);
+
+        Course course = new Course("Title", "Desc", instructor);
+        course.setStatus(Status.BUILDING);
+
+        when(courseRepository.findById(1L)).thenReturn(Optional.of(course));
+        doNothing().when(courseValidator).validateForPublishing(course);
+        when(courseRepository.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
+
+        Course published = courseService.publishCourse(1L);
+
+        assertEquals(Status.PUBLISHED, published.getStatus());
+        assertNotNull(published.getPublishedAt());
+        verify(courseValidator).validateForPublishing(course);
+        verify(courseRepository).save(course);
+    }
+
+    @Test
+    void publishCourse_shouldThrowNotFound_whenCourseNotExist() {
+        when(courseRepository.findById(99L)).thenReturn(Optional.empty());
+
+        CourseException ex = assertThrows(CourseException.class, () -> courseService.publishCourse(99L));
+        assertEquals(HttpStatus.NOT_FOUND, ex.getStatus());
+        assertTrue(ex.getMessage().contains("not found"));
+
+        verify(courseRepository).findById(99L);
+        verify(courseValidator, never()).validateForPublishing(any());
+        verify(courseRepository, never()).save(any());
+    }
+
+    @Test
+    void publishCourse_shouldPropagateException_whenValidationFails() {
+        User instructor = mock(User.class);
+        when(instructor.isInstructor()).thenReturn(true);
+
+        Course course = new Course("Title", "Desc", instructor);
+
+        when(courseRepository.findById(1L)).thenReturn(Optional.of(course));
+        doThrow(new CourseException("Invalid for publish", HttpStatus.BAD_REQUEST))
+                .when(courseValidator).validateForPublishing(course);
+
+        CourseException ex = assertThrows(CourseException.class, () -> courseService.publishCourse(1L));
+        assertEquals("Invalid for publish", ex.getMessage());
+
+        verify(courseValidator).validateForPublishing(course);
+        verify(courseRepository, never()).save(any());
+    }
+}
