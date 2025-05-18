@@ -1,7 +1,6 @@
 package br.com.alura.AluraFake.course.controller;
 
 import br.com.alura.AluraFake.course.dto.CourseDTO;
-import br.com.alura.AluraFake.course.dto.CourseListItemDTO;
 import br.com.alura.AluraFake.course.mapper.CourseMapper;
 import br.com.alura.AluraFake.course.service.CourseService;
 import jakarta.validation.Valid;
@@ -39,7 +38,7 @@ public class CourseController {
     }
 
     @GetMapping("/all")
-    public ResponseEntity<List<CourseListItemDTO>> getAllCourses() {
+    public ResponseEntity<List<CourseDTO>> getAllCourses() {
         return ResponseEntity.ok().body(courseMapper.toDTO(courseService.getAllCourses()));
     }
 

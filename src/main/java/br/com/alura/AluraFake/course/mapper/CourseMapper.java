@@ -6,7 +6,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
 import br.com.alura.AluraFake.course.dto.CourseDTO;
-import br.com.alura.AluraFake.course.dto.CourseListItemDTO;
 import br.com.alura.AluraFake.course.exceptions.CourseException;
 import br.com.alura.AluraFake.course.model.Course;
 import br.com.alura.AluraFake.course.repository.CourseRepository;
@@ -43,7 +42,10 @@ public class CourseMapper {
                 course.getInstructor().getEmail());
     }
 
-    public List<CourseListItemDTO> toDTO(List<Course> courses) {
-        return courses.stream().map(CourseListItemDTO::new).toList();
+    public List<CourseDTO> toDTO(List<Course> courses) {
+        return courses.stream()
+                .map(course -> new CourseDTO(course.getId(), course.getTitle(), course.getDescription(),
+                        course.getInstructor().getEmail()))
+                .toList();
     }
 }
