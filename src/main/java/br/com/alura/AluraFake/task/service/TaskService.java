@@ -1,13 +1,15 @@
-package br.com.alura.AluraFake.task;
+package br.com.alura.AluraFake.task.service;
 
 import java.util.List;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
-import br.com.alura.AluraFake.course.CourseValidator;
 import br.com.alura.AluraFake.task.exceptions.TaskException;
 import br.com.alura.AluraFake.task.models.Task;
+import br.com.alura.AluraFake.task.repository.TaskRepository;
+import br.com.alura.AluraFake.task.validator.TaskValidator;
+import br.com.alura.AluraFake.course.validator.CourseValidator;
 import jakarta.transaction.Transactional;
 
 @Service
@@ -44,6 +46,7 @@ public class TaskService {
     @Transactional
     public Task updateTask(Task task) {
         Integer newOrder;
+        taskValidator.validatePositiveId(task.getId());
         Task existingTask = taskRepository.findById(task.getId())
                 .orElseThrow(() -> new TaskException("Task " + task.getId() + " not found.", HttpStatus.NOT_FOUND));
         task.ensureSameTypeAs(existingTask);
@@ -57,7 +60,7 @@ public class TaskService {
             taskOrderService.adjustOrderForUpdate(existingTask, task.getOrder());
             existingTask.setOrder(newOrder);
         }
-        courseValidator.validateCourseIsInBuildingStatus(existingTask.getCourseId());
+        courseValidator.validateCourseIsInBuildingStatus(existingTask.getCourse().getStatus());
         taskValidator.validateForUpdate(existingTask);
 
         return taskRepository.save(existingTask);
@@ -73,19 +76,21 @@ public class TaskService {
     }
 
     private void prepareTaskForCreation(Task task) {
-        courseValidator.validateCourseIsInBuildingStatus(task.getCourseId());
+        courseValidator.validateCourseIsInBuildingStatus(task.getCourse().getStatus());
         taskValidator.validateForCreate(task);
-        taskRepository.updateTaskOrderForInsert(task.getCourseId(), task.getOrder());
+        taskRepository.updateTaskOrderForInsert(task.getCourse().getId(), task.getOrder());
     }
 
+    @Transactional
     public void deleteById(Long id) {
         if (id <= 0) {
             throw new TaskException("Id must be a positive value.", HttpStatus.BAD_REQUEST);
         }
 
-        if (!taskRepository.existsById(id)) {
-            throw new TaskException("Task with id " + id + " does not exist.", HttpStatus.NOT_FOUND);
-        }
+        Task task = taskRepository.findById(id)
+                .orElseThrow(() -> new TaskException("Task with id " + id + " not found.", HttpStatus.BAD_REQUEST));
+
+        taskOrderService.adjustOrderForDelete(task);
 
         taskRepository.deleteById(id);
     }

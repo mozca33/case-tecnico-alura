@@ -4,8 +4,8 @@ import java.util.List;
 
 import org.springframework.http.HttpStatus;
 
+import br.com.alura.AluraFake.task.enums.Type;
 import br.com.alura.AluraFake.course.model.Course;
-import br.com.alura.AluraFake.task.Type;
 import br.com.alura.AluraFake.task.dto.BaseTaskDTO;
 import br.com.alura.AluraFake.task.dto.MultipleChoiceTaskDTO;
 import br.com.alura.AluraFake.task.dto.OpenTextTaskDTO;
@@ -16,7 +16,6 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
-import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -29,7 +28,6 @@ public class Task {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private Long courseId;
     private String statement;
 
     @Column(name = "task_order", nullable = false)
@@ -61,7 +59,6 @@ public class Task {
         this.statement = statement;
         this.type = type;
         this.order = order;
-        this.courseId = courseId;
     }
 
     public boolean isSameAs(Task task) {

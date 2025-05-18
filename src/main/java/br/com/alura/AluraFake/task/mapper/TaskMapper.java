@@ -4,8 +4,8 @@ import java.util.List;
 
 import org.springframework.stereotype.Component;
 
-import br.com.alura.AluraFake.course.CourseService;
 import br.com.alura.AluraFake.course.model.Course;
+import br.com.alura.AluraFake.course.service.CourseService;
 import br.com.alura.AluraFake.task.dto.BaseTaskDTO;
 import br.com.alura.AluraFake.task.dto.TaskPatchDTO;
 import br.com.alura.AluraFake.task.models.Task;

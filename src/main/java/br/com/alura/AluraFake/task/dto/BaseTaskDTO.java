@@ -1,7 +1,7 @@
 package br.com.alura.AluraFake.task.dto;
 
 import br.com.alura.AluraFake.course.model.Course;
-import br.com.alura.AluraFake.task.Type;
+import br.com.alura.AluraFake.task.enums.Type;
 import br.com.alura.AluraFake.task.models.Task;
 
 public interface BaseTaskDTO {

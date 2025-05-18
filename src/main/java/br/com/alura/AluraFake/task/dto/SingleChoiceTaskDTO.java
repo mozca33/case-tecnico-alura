@@ -3,7 +3,7 @@ package br.com.alura.AluraFake.task.dto;
 import java.util.List;
 
 import br.com.alura.AluraFake.course.model.Course;
-import br.com.alura.AluraFake.task.Type;
+import br.com.alura.AluraFake.task.enums.Type;
 import br.com.alura.AluraFake.task.mapper.TaskOptionMapper;
 import br.com.alura.AluraFake.task.models.Task;
 import jakarta.validation.Valid;

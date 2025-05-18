@@ -1,4 +1,4 @@
-package br.com.alura.AluraFake.task;
+package br.com.alura.AluraFake.task.controller;
 
 import java.util.List;
 
@@ -13,12 +13,15 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
 import br.com.alura.AluraFake.task.dto.BaseTaskDTO;
 import br.com.alura.AluraFake.task.dto.MultipleChoiceTaskDTO;
 import br.com.alura.AluraFake.task.dto.OpenTextTaskDTO;
 import br.com.alura.AluraFake.task.dto.SingleChoiceTaskDTO;
 import br.com.alura.AluraFake.task.dto.TaskPatchDTO;
+import br.com.alura.AluraFake.task.enums.Type;
 import br.com.alura.AluraFake.task.mapper.TaskMapper;
+import br.com.alura.AluraFake.task.service.TaskService;
 import jakarta.validation.Valid;
 
 @RestController

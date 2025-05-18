@@ -1,4 +1,4 @@
-package br.com.alura.AluraFake.task;
+package br.com.alura.AluraFake.task.validator;
 
 import java.util.HashSet;
 import java.util.List;
@@ -10,6 +10,7 @@ import org.springframework.stereotype.Component;
 import br.com.alura.AluraFake.task.exceptions.TaskException;
 import br.com.alura.AluraFake.task.models.Task;
 import br.com.alura.AluraFake.task.models.TaskOption;
+import br.com.alura.AluraFake.task.repository.TaskRepository;
 
 @Component
 public class TaskValidator {
@@ -148,6 +149,12 @@ public class TaskValidator {
                 throw new TaskException("Duplicate option text found: " + option.getTaskOption(),
                         HttpStatus.BAD_REQUEST);
             }
+        }
+    }
+
+    public void validatePositiveId(Long id) {
+        if (id <= 0) {
+            throw new TaskException("Id should be a positive value", HttpStatus.BAD_REQUEST);
         }
     }
 }
