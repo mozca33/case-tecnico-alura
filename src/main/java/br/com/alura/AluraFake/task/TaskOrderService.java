@@ -17,9 +17,9 @@ public class TaskOrderService {
             return;
 
         if (newOrder > task.getOrder()) {
-            taskRepository.decrementOrderRange(task.getCourseId(), task.getOrder() + 1, newOrder);
+            taskRepository.decrementOrderRange(task.getCourse().getId(), task.getOrder() + 1, newOrder);
         } else {
-            taskRepository.incrementOrderRange(task.getCourseId(), newOrder, task.getOrder() - 1);
+            taskRepository.incrementOrderRange(task.getCourse().getId(), newOrder, task.getOrder() - 1);
         }
     }
 }
