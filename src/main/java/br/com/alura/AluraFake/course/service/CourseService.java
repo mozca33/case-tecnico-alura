@@ -6,13 +6,13 @@ import java.util.List;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
-import br.com.alura.AluraFake.course.Status;
+import br.com.alura.AluraFake.course.enums.Status;
 import br.com.alura.AluraFake.course.exceptions.CourseException;
 import br.com.alura.AluraFake.course.model.Course;
-import br.com.alura.AluraFake.course.CourseRepository;
+import br.com.alura.AluraFake.course.repository.CourseRepository;
 import br.com.alura.AluraFake.course.validator.CourseValidator;
 import br.com.alura.AluraFake.task.exceptions.TaskException;
-import br.com.alura.AluraFake.user.UserValidator;
+import br.com.alura.AluraFake.user.validator.UserValidator;
 import jakarta.transaction.Transactional;
 
 @Service

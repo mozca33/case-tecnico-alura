@@ -1,17 +1,15 @@
 package br.com.alura.AluraFake.course.mapper;
 
 import java.util.List;
-import java.util.Optional;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
-import org.springframework.web.bind.MethodArgumentNotValidException;
 
 import br.com.alura.AluraFake.course.dto.CourseDTO;
 import br.com.alura.AluraFake.course.dto.CourseListItemDTO;
 import br.com.alura.AluraFake.course.exceptions.CourseException;
 import br.com.alura.AluraFake.course.model.Course;
-import br.com.alura.AluraFake.course.CourseRepository;
+import br.com.alura.AluraFake.course.repository.CourseRepository;
 import br.com.alura.AluraFake.user.models.User;
 import br.com.alura.AluraFake.user.service.UserService;
 
