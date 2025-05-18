@@ -169,7 +169,15 @@ public class Task {
 
     public Integer mergeFrom(Task other) {
         Integer newOrder = null;
-
+        if (other.getStatement().isBlank()) {
+            throw new TaskException("Statement cannot be blank.", HttpStatus.BAD_REQUEST);
+        }
+        if (other.getStatement() != null && (other.getStatement().length() < 4)) {
+            throw new TaskException("Statement must have between 4 and 80 characters.", HttpStatus.BAD_REQUEST);
+        }
+        if (other.getOrder() != null && other.getOrder() <= 0) {
+            throw new TaskException("Order must be positive and sequential", HttpStatus.BAD_REQUEST);
+        }
         if (other.getStatement() != null) {
             this.setStatement(other.getStatement());
         }
@@ -181,14 +189,10 @@ public class Task {
         if (other.getCourse() != null)
             this.setCourse(other.getCourse());
 
-        if (other.getOptions() != null) {
-            if ((other.getType() == Type.SINGLE_CHOICE
-                    || other.getType() == Type.MULTIPLE_CHOICE)
-                    && other.getType().equals(this.getType())) {
-                this.getOptions().clear();
-                this.getOptions().addAll(other.getOptions());
-                this.attachOptionsToTask();
-            }
+        if (shouldMergeOptions(other)) {
+            this.getOptions().clear();
+            this.getOptions().addAll(other.getOptions());
+            this.attachOptionsToTask();
         }
 
         return newOrder;
@@ -208,5 +212,11 @@ public class Task {
             case MULTIPLE_CHOICE -> new MultipleChoiceTaskDTO(id, course.getId(), statement, order, type,
                     options.stream().map(TaskOption::toDTO).toList());
         };
+    }
+
+    private boolean shouldMergeOptions(Task other) {
+        return other.getOptions() != null
+                && (other.getType() == Type.SINGLE_CHOICE || other.getType() == Type.MULTIPLE_CHOICE)
+                && other.getType().equals(this.getType());
     }
 }
