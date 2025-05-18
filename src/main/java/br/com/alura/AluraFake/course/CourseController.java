@@ -30,7 +30,6 @@ public class CourseController {
         this.courseMapper = courseMapper;
     }
 
-    @Transactional
     @PostMapping("/new")
     public ResponseEntity<CourseDTO> createCourse(@Valid @RequestBody CourseDTO courseDTO) {
         return ResponseEntity.status(HttpStatus.CREATED)

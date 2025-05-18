@@ -10,6 +10,7 @@ import br.com.alura.AluraFake.course.exceptions.CourseException;
 import br.com.alura.AluraFake.course.model.Course;
 import br.com.alura.AluraFake.task.exceptions.TaskException;
 import br.com.alura.AluraFake.user.UserValidator;
+import jakarta.transaction.Transactional;
 
 @Service
 public class CourseService {
@@ -25,6 +26,7 @@ public class CourseService {
         this.userValidator = userValidator;
     }
 
+    @Transactional
     public Course createCourse(Course course) {
         if (courseRepository.existsByTitle(course.getTitle())) {
             throw new CourseException("Course " + course.getTitle() + " already exists.", HttpStatus.CONFLICT);
@@ -47,6 +49,7 @@ public class CourseService {
         return courseRepository.findAll();
     }
 
+    @Transactional
     public Course publishCourse(Long id) {
         Course course = courseRepository.findById(id)
                 .orElseThrow(() -> new CourseException("Course with id " + id + " not found.", HttpStatus.NOT_FOUND));
