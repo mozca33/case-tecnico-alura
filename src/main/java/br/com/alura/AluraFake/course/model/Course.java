@@ -2,7 +2,7 @@ package br.com.alura.AluraFake.course.model;
 
 import br.com.alura.AluraFake.course.Status;
 import br.com.alura.AluraFake.task.models.Task;
-import br.com.alura.AluraFake.user.User;
+import br.com.alura.AluraFake.user.models.User;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
