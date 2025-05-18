@@ -1,12 +1,16 @@
-package br.com.alura.AluraFake.infra;
+package br.com.alura.AluraFake.infra.data;
 
-import br.com.alura.AluraFake.course.*;
-import br.com.alura.AluraFake.user.*;
+import java.util.Arrays;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
-import java.util.Arrays;
+import br.com.alura.AluraFake.course.model.Course;
+import br.com.alura.AluraFake.course.repository.CourseRepository;
+import br.com.alura.AluraFake.user.enums.Role;
+import br.com.alura.AluraFake.user.models.User;
+import br.com.alura.AluraFake.user.repository.UserRepository;
 
 @Component
 public class DataSeeder implements CommandLineRunner {
@@ -24,7 +28,8 @@ public class DataSeeder implements CommandLineRunner {
 
     @Override
     public void run(String... args) {
-        if (!"dev".equals(activeProfile)) return;
+        if (!"dev".equals(activeProfile))
+            return;
 
         if (userRepository.count() == 0) {
             User caio = new User("Caio", "caio@alura.com.br", Role.STUDENT);
