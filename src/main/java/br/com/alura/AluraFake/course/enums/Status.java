@@ -1,4 +1,4 @@
-package br.com.alura.AluraFake.course;
+package br.com.alura.AluraFake.course.enums;
 
 public enum Status {
     BUILDING,
