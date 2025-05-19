@@ -13,7 +13,7 @@ import br.com.alura.AluraFake.course.repository.CourseRepository;
 import br.com.alura.AluraFake.course.validator.CourseValidator;
 import br.com.alura.AluraFake.task.exceptions.TaskException;
 import br.com.alura.AluraFake.user.models.User;
-import br.com.alura.AluraFake.user.validator.UserValidator;
+import br.com.alura.AluraFake.user.service.UserService;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -23,15 +23,15 @@ class CourseServiceTest {
 
     private CourseRepository courseRepository;
     private CourseValidator courseValidator;
-    private UserValidator userValidator;
+    private UserService userService;
     private CourseService courseService;
 
     @BeforeEach
     void setup() {
         courseRepository = mock(CourseRepository.class);
         courseValidator = mock(CourseValidator.class);
-        userValidator = mock(UserValidator.class);
-        courseService = new CourseService(courseRepository, courseValidator, userValidator);
+        userService = mock(UserService.class);
+        courseService = new CourseService(courseRepository, courseValidator, userService);
     }
 
     @Test
@@ -42,14 +42,14 @@ class CourseServiceTest {
         Course course = new Course("Java Basics", "Intro to Java", instructor);
 
         when(courseRepository.existsByTitle("Java Basics")).thenReturn(false);
-        doNothing().when(userValidator).validateUserIsInstructor(instructor);
+        doNothing().when(userService).validateUserIsInstructor(instructor);
         when(courseRepository.save(course)).thenReturn(course);
 
         Course created = courseService.createCourse(course);
 
         assertEquals(course, created);
         verify(courseRepository).existsByTitle("Java Basics");
-        verify(userValidator).validateUserIsInstructor(instructor);
+        verify(userService).validateUserIsInstructor(instructor);
         verify(courseRepository).save(course);
     }
 
@@ -67,7 +67,7 @@ class CourseServiceTest {
         assertTrue(ex.getMessage().contains("already exists"));
 
         verify(courseRepository).existsByTitle("Java Basics");
-        verify(userValidator, never()).validateUserIsInstructor(any());
+        verify(userService, never()).validateUserIsInstructor(any());
         verify(courseRepository, never()).save(any());
     }
 
@@ -80,13 +80,13 @@ class CourseServiceTest {
 
         when(courseRepository.existsByTitle("Java Basics")).thenReturn(false);
         doThrow(new CourseException("Invalid instructor", HttpStatus.BAD_REQUEST))
-                .when(userValidator).validateUserIsInstructor(instructor);
+                .when(userService).validateUserIsInstructor(instructor);
 
         CourseException ex = assertThrows(CourseException.class, () -> courseService.createCourse(course));
         assertEquals("Invalid instructor", ex.getMessage());
 
         verify(courseRepository).existsByTitle("Java Basics");
-        verify(userValidator).validateUserIsInstructor(instructor);
+        verify(userService).validateUserIsInstructor(instructor);
         verify(courseRepository, never()).save(any());
     }
 
@@ -201,5 +201,99 @@ class CourseServiceTest {
 
         verify(courseValidator).validateForPublishing(course);
         verify(courseRepository, never()).save(any());
+    }
+
+    @Test
+    void updateCourse_shouldUpdateFieldsAndSave_whenValid() {
+        User instructor = mock(User.class);
+        when(instructor.isInstructor()).thenReturn(true);
+
+        Course existingCourse = new Course("Old Title", "Old Desc", instructor);
+        existingCourse.setStatus(Status.BUILDING);
+
+        User newInstructor = mock(User.class);
+        when(newInstructor.isInstructor()).thenReturn(true);
+
+        Course update = new Course("New Title", "New Desc", newInstructor);
+
+        when(courseRepository.findById(1L)).thenReturn(Optional.of(existingCourse));
+        when(courseRepository.existsByTitle("New Title")).thenReturn(false);
+        doNothing().when(courseValidator).validateCourseIsInBuildingStatus(Status.BUILDING);
+        doNothing().when(userService).validateUserIsInstructor(newInstructor);
+        when(courseRepository.save(existingCourse)).thenReturn(existingCourse);
+
+        courseService.updateCourse(1L, update);
+
+        assertEquals("New Title", existingCourse.getTitle());
+        assertEquals("New Desc", existingCourse.getDescription());
+        assertEquals(newInstructor, existingCourse.getInstructor());
+        verify(courseValidator).validateCourseIsInBuildingStatus(Status.BUILDING);
+        verify(userService).validateUserIsInstructor(newInstructor);
+        verify(courseRepository).save(existingCourse);
+    }
+
+    @Test
+    void updateCourse_shouldThrowException_whenCourseNotFound() {
+        Course update = mock(Course.class);
+        when(courseRepository.findById(1L)).thenReturn(Optional.empty());
+
+        CourseException ex = assertThrows(CourseException.class, () -> courseService.updateCourse(1L, update));
+        assertEquals(HttpStatus.NOT_FOUND, ex.getStatus());
+        verify(courseRepository).findById(1L);
+    }
+
+    @Test
+    void updateCourse_shouldThrowException_whenTitleAlreadyExists() {
+        User instructor = mock(User.class);
+        when(instructor.isInstructor()).thenReturn(true);
+
+        Course existingCourse = new Course("Old Title", "Old Desc", instructor);
+        existingCourse.setStatus(Status.BUILDING);
+
+        Course update = new Course("Existing Title", "New Desc", instructor);
+
+        when(courseRepository.findById(1L)).thenReturn(Optional.of(existingCourse));
+        doNothing().when(courseValidator).validateCourseIsInBuildingStatus(Status.BUILDING);
+        when(courseRepository.existsByTitle("Existing Title")).thenReturn(true);
+
+        CourseException ex = assertThrows(CourseException.class, () -> courseService.updateCourse(1L, update));
+        assertEquals(HttpStatus.CONFLICT, ex.getStatus());
+        verify(courseRepository).existsByTitle("Existing Title");
+    }
+
+    @Test
+    void deleteCourse_shouldDelete_whenValid() {
+        User instructor = mock(User.class);
+        when(instructor.isInstructor()).thenReturn(true);
+
+        Course existingCourse = new Course("Title", "Desc", instructor);
+        existingCourse.setStatus(Status.BUILDING);
+
+        when(courseRepository.findById(1L)).thenReturn(Optional.of(existingCourse));
+        doNothing().when(courseValidator).validateCourseIsInBuildingStatus(Status.BUILDING);
+
+        courseService.deleteCourse(1L);
+
+        verify(courseValidator).validateCourseIsInBuildingStatus(Status.BUILDING);
+        verify(courseRepository).deleteById(1L);
+    }
+
+    @Test
+    void deleteCourse_shouldThrowException_whenCourseNotFound() {
+        when(courseRepository.findById(1L)).thenReturn(Optional.empty());
+
+        CourseException ex = assertThrows(CourseException.class, () -> courseService.deleteCourse(1L));
+        assertEquals(HttpStatus.NOT_FOUND, ex.getStatus());
+        verify(courseRepository).findById(1L);
+        verify(courseRepository, never()).deleteById(any());
+    }
+
+    @Test
+    void validateCourseIsInBuildingStatus_shouldDelegateToValidator() {
+        doNothing().when(courseValidator).validateCourseIsInBuildingStatus(Status.BUILDING);
+
+        courseService.validateCourseIsInBuildingStatus(Status.BUILDING);
+
+        verify(courseValidator).validateCourseIsInBuildingStatus(Status.BUILDING);
     }
 }
