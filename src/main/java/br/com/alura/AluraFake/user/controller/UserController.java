@@ -1,10 +1,8 @@
 package br.com.alura.AluraFake.user.controller;
 
-import br.com.alura.AluraFake.infra.exception.dto.ErrorItemDTO;
-import br.com.alura.AluraFake.user.dtos.NewUserDTO;
-import br.com.alura.AluraFake.user.dtos.UserListItemDTO;
-import br.com.alura.AluraFake.user.models.User;
-import br.com.alura.AluraFake.user.repository.UserRepository;
+import br.com.alura.AluraFake.user.dtos.UserDTO;
+import br.com.alura.AluraFake.user.mapper.UserMapper;
+import br.com.alura.AluraFake.user.service.UserService;
 import jakarta.validation.Valid;
 import org.springframework.http.*;
 import org.springframework.transaction.annotation.Transactional;
@@ -13,24 +11,28 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
+@RequestMapping("/users")
 public class UserController {
 
-    private final UserRepository userRepository;
+    private final UserService userService;
+    private final UserMapper userMapper;
 
-    public UserController(UserRepository userRepository) {
-        this.userRepository = userRepository;
+    public UserController(UserService userService, UserMapper userMapper) {
+        this.userService = userService;
+        this.userMapper = userMapper;
     }
 
     @Transactional
-    @PostMapping("/user/new")
-    public ResponseEntity newStudent(@RequestBody @Valid NewUserDTO newUser) {
-        if (userRepository.existsByEmail(newUser.getEmail())) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(new ErrorItemDTO("email", "Email já cadastrado no sistema"));
-        }
-        User user = newUser.toModel();
-        userRepository.save(user);
-        return ResponseEntity.status(HttpStatus.CREATED).build();
+    @PostMapping()
+    public ResponseEntity<UserDTO> createUser(@RequestBody @Valid UserDTO userDTO) {
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(userMapper.toDTO(
+                        userService.createUser(userMapper.toEntity(userDTO))));
+    }
+
+    @GetMapping()
+    public ResponseEntity<List<UserDTO>> listAllUsers() {
+        return ResponseEntity.ok().body(userMapper.toDTO(userService.findAll()));
     }
 
     @GetMapping("/user/all")

@@ -43,12 +43,24 @@ public class User {
         return name;
     }
 
+    public void setName(String name) {
+        this.name = name;
+    }
+
     public String getEmail() {
         return email;
     }
 
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
     public Role getRole() {
         return role;
+    }
+
+    public void setRole(Role role) {
+        this.role = role;
     }
 
     public boolean isInstructor() {
@@ -57,5 +69,17 @@ public class User {
 
     public String getPassword() {
         return password;
+    }
+
+    public void mergeFrom(User updatedUser) {
+        if (updatedUser.name != null) {
+            this.name = updatedUser.name;
+        }
+        if (updatedUser.email != null) {
+            this.email = updatedUser.email;
+        }
+        if (updatedUser.role != null) {
+            this.role = updatedUser.role;
+        }
     }
 }
