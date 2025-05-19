@@ -51,4 +51,18 @@ public class UserService {
 
         return userRepository.save(existingUser);
     }
+
+    public void deleteUser(Long id) {
+        User user = findById(id);
+        userRepository.delete(user);
+    }
+
+    public void validateUserIsInstructor(User user) {
+        userValidator.validateUserIsInstructor(user);
+    }
+
+    public void validateUser(User user) {
+        userValidator.validateUserForUpdate(user);
+    }
+
 }
