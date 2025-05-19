@@ -68,6 +68,10 @@ public class CourseController {
                 courseMapper.toDTO(courseService.updateCourse(id, courseMapper.toEntity(courseDTO))));
     }
 
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteCourse(@PathVariable @Min(1) Long id) {
+        courseService.deleteCourse(id);
+        return ResponseEntity.noContent().build();
     }
 
 }

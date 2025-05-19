@@ -74,6 +74,15 @@ public class CourseService {
         mergeCourse(existingCourse, course);
         return courseRepository.save(existingCourse);
     }
+
+    public void deleteCourse(Long id) {
+        Course existingCourse = findByCourseId(id);
+
+        courseValidator.validateCourseIsInBuildingStatus(existingCourse.getStatus());
+
+        courseRepository.deleteById(id);
+    }
+
     public void validateCourseIsInBuildingStatus(Status status) {
         courseValidator.validateCourseIsInBuildingStatus(status);
     }
