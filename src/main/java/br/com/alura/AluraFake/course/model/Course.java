@@ -82,11 +82,36 @@ public class Course {
         return publishedAt;
     }
 
+    public List<Task> getTasks() {
+        return tasks;
+    }
+
+    public void setStatus(Status status) {
+        this.status = status;
+    }
+
     public void setPublishedAt(LocalDateTime publishedAt) {
         this.publishedAt = publishedAt;
     }
 
-    public List<Task> getTasks() {
-        return tasks;
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public void setInstructor(User instructor) {
+        Assert.isTrue(instructor.isInstructor(), "Usuario deve ser um instrutor");
+        this.instructor = instructor;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public void setTasks(List<Task> tasks) {
+        this.tasks = tasks;
     }
 }

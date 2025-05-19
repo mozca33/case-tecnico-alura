@@ -64,4 +64,38 @@ public class CourseService {
         return courseRepository.save(course);
 
     }
+
+    public Course updateCourse(Long id, Course course) {
+        Course existingCourse = findByCourseId(id); // validar se é o mesmo antes de ir para o banco
+        // adicionar throw se der tempo
+
+        courseValidator.validateCourseIsInBuildingStatus(existingCourse.getStatus());
+
+        mergeCourse(existingCourse, course);
+        return courseRepository.save(existingCourse);
+    }
+
+    private void mergeCourse(Course existingCourse, Course course) {
+        if (course.getInstructor() != null && !course.getInstructor().equals(existingCourse.getInstructor())) {
+            userService.validateUserIsInstructor(course.getInstructor());
+            existingCourse.setInstructor(course.getInstructor());
+        }
+
+        if (course.getTitle() != null && !course.getTitle().equals(existingCourse.getTitle())) {
+            if (courseRepository.existsByTitle(course.getTitle())) {
+                throw new CourseException("Course " + course.getTitle() + " already exists.", HttpStatus.CONFLICT);
+            }
+
+            existingCourse.setTitle(course.getTitle());
+        }
+
+        if (course.getDescription() != null) {
+            existingCourse.setDescription(course.getDescription());
+        }
+    }
+
+    private Course findByCourseId(Long id) {
+        return courseRepository.findById(id)
+                .orElseThrow(() -> new CourseException("Course with id " + id + " not found.", HttpStatus.NOT_FOUND));
+    }
 }

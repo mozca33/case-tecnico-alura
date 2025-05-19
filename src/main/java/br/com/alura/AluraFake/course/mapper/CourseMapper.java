@@ -39,13 +39,14 @@ public class CourseMapper {
 
     public CourseDTO toDTO(Course course) {
         return new CourseDTO(course.getId(), course.getTitle(), course.getDescription(),
-                course.getInstructor().getEmail());
+                course.getInstructor().getEmail(), course.getStatus());
     }
 
     public List<CourseDTO> toDTO(List<Course> courses) {
         return courses.stream()
                 .map(course -> new CourseDTO(course.getId(), course.getTitle(), course.getDescription(),
-                        course.getInstructor().getEmail()))
+                        course.getInstructor().getEmail(), course.getStatus()))
                 .toList();
     }
+
 }
