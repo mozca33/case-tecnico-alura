@@ -6,6 +6,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
 import br.com.alura.AluraFake.course.dto.CourseDTO;
+import br.com.alura.AluraFake.course.dto.CoursePatchDTO;
 import br.com.alura.AluraFake.course.exceptions.CourseException;
 import br.com.alura.AluraFake.course.model.Course;
 import br.com.alura.AluraFake.course.repository.CourseRepository;
@@ -23,6 +24,18 @@ public class CourseMapper {
     public static Course toEntity(Long courseId, CourseRepository courseRepository) {
         return courseRepository.findById(courseId)
                 .orElseThrow(() -> new CourseException("Course " + courseId + " not found", HttpStatus.NOT_FOUND));
+    }
+
+    public Course toEntity(CoursePatchDTO dto) {
+        User instructor = userService.findByEmail(dto.emailInstructor())
+                .orElseThrow(() -> new CourseException("Instructor with email " + dto.emailInstructor() + " not found",
+                        HttpStatus.BAD_REQUEST));
+
+        if (!instructor.isInstructor()) {
+            throw new CourseException("User is not an instructor.", HttpStatus.FORBIDDEN);
+        }
+
+        return new Course(dto.title(), dto.description(), instructor);
     }
 
     public Course toEntity(CourseDTO dto) {

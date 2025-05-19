@@ -74,6 +74,9 @@ public class CourseService {
         mergeCourse(existingCourse, course);
         return courseRepository.save(existingCourse);
     }
+    public void validateCourseIsInBuildingStatus(Status status) {
+        courseValidator.validateCourseIsInBuildingStatus(status);
+    }
 
     private void mergeCourse(Course existingCourse, Course course) {
         if (course.getInstructor() != null && !course.getInstructor().equals(existingCourse.getInstructor())) {

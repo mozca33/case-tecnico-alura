@@ -62,6 +62,12 @@ public class CourseController {
                 courseMapper.toDTO(courseService.updateCourse(id, courseMapper.toEntity(courseDTO))));
     }
 
+    @PatchMapping("/{id}")
+    public ResponseEntity<CourseDTO> patchCourse(@PathVariable @Min(1) Long id, @RequestBody CoursePatchDTO courseDTO) {
+        return ResponseEntity.ok().body(
+                courseMapper.toDTO(courseService.updateCourse(id, courseMapper.toEntity(courseDTO))));
+    }
+
     }
 
 }
