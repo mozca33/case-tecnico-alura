@@ -10,6 +10,7 @@ import br.com.alura.AluraFake.task.repository.TaskRepository;
 import br.com.alura.AluraFake.task.validator.TaskValidator;
 import br.com.alura.AluraFake.user.enums.Role;
 import br.com.alura.AluraFake.user.models.User;
+import br.com.alura.AluraFake.course.service.CourseService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -38,6 +39,9 @@ class TaskServiceTest {
 
     @Mock
     private CourseValidator courseValidator;
+
+    @Mock
+    private CourseService courseService;
 
     @InjectMocks
     private TaskService taskService;
