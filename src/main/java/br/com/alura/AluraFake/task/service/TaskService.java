@@ -9,26 +9,26 @@ import br.com.alura.AluraFake.task.exceptions.TaskException;
 import br.com.alura.AluraFake.task.models.Task;
 import br.com.alura.AluraFake.task.repository.TaskRepository;
 import br.com.alura.AluraFake.task.validator.TaskValidator;
-import br.com.alura.AluraFake.course.validator.CourseValidator;
+import br.com.alura.AluraFake.course.service.CourseService;
 import jakarta.transaction.Transactional;
 
 @Service
 public class TaskService {
     private final TaskRepository taskRepository;
     private final TaskValidator taskValidator;
-    private final CourseValidator courseValidator;
+    private final CourseService courseService;
     private final TaskOrderService taskOrderService;
 
-    public TaskService(TaskRepository taskRepository, TaskValidator taskValidator, CourseValidator courseValidator,
+    public TaskService(TaskRepository taskRepository, TaskValidator taskValidator, CourseService courseService,
             TaskOrderService taskOrderService) {
-        this.courseValidator = courseValidator;
+        this.courseService = courseService;
         this.taskRepository = taskRepository;
         this.taskValidator = taskValidator;
         this.taskOrderService = taskOrderService;
     }
 
     public List<Task> findTasksByCourseId(Long id) {
-        courseValidator.validateCourseExistsById(id);
+        courseService.getById(id);
         List<Task> list = taskRepository.findByCourseId(id);
 
         return list;
@@ -60,7 +60,7 @@ public class TaskService {
             taskOrderService.adjustOrderForUpdate(existingTask, task.getOrder());
             existingTask.setOrder(newOrder);
         }
-        courseValidator.validateCourseIsInBuildingStatus(existingTask.getCourse().getStatus());
+        courseService.validateCourseIsInBuildingStatus(existingTask.getCourse().getStatus());
         taskValidator.validateForUpdate(existingTask);
 
         return taskRepository.save(existingTask);
@@ -76,7 +76,7 @@ public class TaskService {
     }
 
     private void prepareTaskForCreation(Task task) {
-        courseValidator.validateCourseIsInBuildingStatus(task.getCourse().getStatus());
+        courseService.validateCourseIsInBuildingStatus(task.getCourse().getStatus());
         taskValidator.validateForCreate(task);
         taskRepository.updateTaskOrderForInsert(task.getCourse().getId(), task.getOrder());
     }
