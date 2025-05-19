@@ -132,23 +132,73 @@ class CourseValidatorTest {
         assertEquals(HttpStatus.BAD_REQUEST, ex.getStatus());
     }
 
-    @Test
-    void validateForPublishing_throwsException_whenNullTasksList() {
-        Course course = mock(Course.class);
-
-        when(course.getId()).thenReturn(41L);
-        when(course.getStatus()).thenReturn(Status.BUILDING);
-        when(course.getTasks()).thenReturn(null);
-        when(courseRepository.existsById(41L)).thenReturn(true);
-
-        assertThrows(NullPointerException.class, () -> courseValidator.validateForPublishing(course));
-    }
-
     private Task createTask(boolean openText, boolean singleChoice, boolean multipleChoice) {
         Task task = mock(Task.class);
         when(task.isOpenText()).thenReturn(openText);
         when(task.isSingleChoice()).thenReturn(singleChoice);
         when(task.isMultipleChoice()).thenReturn(multipleChoice);
         return task;
+    }
+
+    @Test
+    void validateCourseIsInBuildingStatus_withNullStatus_throwsException() {
+        CourseException ex = assertThrows(CourseException.class,
+                () -> courseValidator.validateCourseIsInBuildingStatus(null));
+        assertEquals("Course is not in BUILDING status.", ex.getMessage());
+        assertEquals(HttpStatus.CONFLICT, ex.getStatus());
+    }
+
+    @Test
+    void validateCourseExistsById_withNullId_throwsException() {
+        CourseException ex = assertThrows(CourseException.class, () -> courseValidator.validateCourseExistsById(null));
+        assertEquals("Course with id null not found.", ex.getMessage());
+        assertEquals(HttpStatus.NOT_FOUND, ex.getStatus());
+    }
+
+    @Test
+    void validateForPublishing_withTasksHavingAllTypesInOneTask_DoesNotThrow() {
+        Course course = mock(Course.class);
+        Task task = createTask(true, true, true);
+        List<Task> tasks = List.of(task);
+
+        when(course.getId()).thenReturn(50L);
+        when(course.getStatus()).thenReturn(Status.BUILDING);
+        when(course.getTasks()).thenReturn(tasks);
+        when(courseRepository.existsById(50L)).thenReturn(true);
+
+        assertDoesNotThrow(() -> courseValidator.validateForPublishing(course));
+    }
+
+    @Test
+    void validateForPublishing_withTasksHavingDuplicatedTypes_DoesNotThrow() {
+        Course course = mock(Course.class);
+        List<Task> tasks = List.of(
+                createTask(true, false, false),
+                createTask(true, true, false),
+                createTask(false, true, true),
+                createTask(false, false, true));
+
+        when(course.getId()).thenReturn(60L);
+        when(course.getStatus()).thenReturn(Status.BUILDING);
+        when(course.getTasks()).thenReturn(tasks);
+        when(courseRepository.existsById(60L)).thenReturn(true);
+
+        assertDoesNotThrow(() -> courseValidator.validateForPublishing(course));
+    }
+
+    @Test
+    void validateForPublishing_withTasksHavingNoTypes_throwsException() {
+        Course course = mock(Course.class);
+        Task task = createTask(false, false, false);
+        List<Task> tasks = List.of(task);
+
+        when(course.getId()).thenReturn(70L);
+        when(course.getStatus()).thenReturn(Status.BUILDING);
+        when(course.getTasks()).thenReturn(tasks);
+        when(courseRepository.existsById(70L)).thenReturn(true);
+
+        CourseException ex = assertThrows(CourseException.class, () -> courseValidator.validateForPublishing(course));
+        assertEquals("The course does not have all types of task.", ex.getMessage());
+        assertEquals(HttpStatus.BAD_REQUEST, ex.getStatus());
     }
 }
