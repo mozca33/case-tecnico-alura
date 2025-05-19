@@ -11,7 +11,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
 
 import br.com.alura.AluraFake.course.dto.CourseDTO;
-import br.com.alura.AluraFake.course.dto.CourseListItemDTO;
+import br.com.alura.AluraFake.course.enums.Status;
 import br.com.alura.AluraFake.course.exceptions.CourseException;
 import br.com.alura.AluraFake.course.model.Course;
 import br.com.alura.AluraFake.course.repository.CourseRepository;
@@ -56,10 +56,10 @@ class CourseMapperTest {
     @Test
     void toEntityFromDTO_whenInstructorFoundAndIsInstructor_createsCourse() {
         User instructor = mock(User.class);
-        when(userService.findByEmail("prof@example.com")).thenReturn(Optional.of(instructor));
+        when(userService.findByEmail("user@example.com")).thenReturn(Optional.of(instructor));
         when(instructor.isInstructor()).thenReturn(true);
 
-        CourseDTO dto = new CourseDTO(null, "Java 101", "Course description", "prof@example.com");
+        CourseDTO dto = new CourseDTO(null, "Java", "Course description", "user@example.com", Status.BUILDING);
 
         Course course = courseMapper.toEntity(dto);
 
@@ -70,13 +70,13 @@ class CourseMapperTest {
 
     @Test
     void toEntityFromDTO_whenInstructorNotFound_throwsCourseException() {
-        when(userService.findByEmail("prof@example.com")).thenReturn(Optional.empty());
+        when(userService.findByEmail("user@example.com")).thenReturn(Optional.empty());
 
-        CourseDTO dto = new CourseDTO(null, "Java 101", "Course description", "prof@example.com");
+        CourseDTO dto = new CourseDTO(null, "Java", "Course description", "user@example.com", Status.BUILDING);
 
         CourseException exception = assertThrows(CourseException.class, () -> courseMapper.toEntity(dto));
 
-        assertEquals("Instructor with email prof@example.com not found", exception.getMessage());
+        assertEquals("Instructor with email user@example.com not found", exception.getMessage());
         assertEquals(HttpStatus.BAD_REQUEST, exception.getStatus());
     }
 
@@ -86,7 +86,7 @@ class CourseMapperTest {
         when(userService.findByEmail("user@example.com")).thenReturn(Optional.of(user));
         when(user.isInstructor()).thenReturn(false);
 
-        CourseDTO dto = new CourseDTO(null, "Java 101", "Course description", "user@example.com");
+        CourseDTO dto = new CourseDTO(null, "Java", "Course description", "user@example.com", Status.BUILDING);
 
         CourseException exception = assertThrows(CourseException.class, () -> courseMapper.toEntity(dto));
 
@@ -97,56 +97,61 @@ class CourseMapperTest {
     @Test
     void toDTOFromCourse_returnsCorrectDTO() {
         User instructor = mock(User.class);
-        when(instructor.getEmail()).thenReturn("prof@example.com");
+        when(instructor.getEmail()).thenReturn("user@example.com");
 
         Course course = mock(Course.class);
         when(course.getId()).thenReturn(123L);
-        when(course.getTitle()).thenReturn("Java 101");
+        when(course.getTitle()).thenReturn("Java");
         when(course.getDescription()).thenReturn("Description");
         when(course.getInstructor()).thenReturn(instructor);
 
         CourseDTO dto = courseMapper.toDTO(course);
 
         assertEquals(123L, dto.id());
-        assertEquals("Java 101", dto.title());
+        assertEquals("Java", dto.title());
         assertEquals("Description", dto.description());
-        assertEquals("prof@example.com", dto.emailInstructor());
+        assertEquals("user@example.com", dto.emailInstructor());
     }
 
     @Test
     void toDTOFromCourseList_mapsCorrectly() {
+        User instructor = mock(User.class);
+        when(instructor.getEmail()).thenReturn("user@example.com");
+
         Course course1 = mock(Course.class);
         when(course1.getId()).thenReturn(1L);
-        when(course1.getTitle()).thenReturn("Course 1");
+        when(course1.getTitle()).thenReturn("Java");
         when(course1.getDescription()).thenReturn("Desc 1");
-        when(course1.getStatus()).thenReturn(br.com.alura.AluraFake.course.enums.Status.BUILDING);
+        when(course1.getInstructor()).thenReturn(instructor);
 
         Course course2 = mock(Course.class);
         when(course2.getId()).thenReturn(2L);
-        when(course2.getTitle()).thenReturn("Course 2");
+        when(course2.getTitle()).thenReturn("Spring");
         when(course2.getDescription()).thenReturn("Desc 2");
-        when(course2.getStatus()).thenReturn(br.com.alura.AluraFake.course.enums.Status.PUBLISHED);
+        when(course2.getInstructor()).thenReturn(instructor);
 
-        List<CourseListItemDTO> list = courseMapper.toDTO(List.of(course1, course2));
+        List<Course> courses = List.of(course1, course2);
 
-        assertEquals(2, list.size());
+        List<CourseDTO> dtos = courseMapper.toDTO(courses);
 
-        CourseListItemDTO dto1 = list.get(0);
-        assertEquals(1L, dto1.getId());
-        assertEquals("Course 1", dto1.getTitle());
-        assertEquals("Desc 1", dto1.getDescription());
-        assertEquals(br.com.alura.AluraFake.course.enums.Status.BUILDING, dto1.getStatus());
+        assertEquals(2, dtos.size());
 
-        CourseListItemDTO dto2 = list.get(1);
-        assertEquals(2L, dto2.getId());
-        assertEquals("Course 2", dto2.getTitle());
-        assertEquals("Desc 2", dto2.getDescription());
-        assertEquals(br.com.alura.AluraFake.course.enums.Status.PUBLISHED, dto2.getStatus());
+        CourseDTO dto1 = dtos.get(0);
+        assertEquals(1L, dto1.id());
+        assertEquals("Java", dto1.title());
+        assertEquals("Desc 1", dto1.description());
+        assertEquals("user@example.com", dto1.emailInstructor());
+
+        CourseDTO dto2 = dtos.get(1);
+        assertEquals(2L, dto2.id());
+        assertEquals("Spring", dto2.title());
+        assertEquals("Desc 2", dto2.description());
+        assertEquals("user@example.com", dto2.emailInstructor());
     }
 
     @Test
     void toDTOFromCourseList_whenEmpty_returnsEmptyList() {
-        List<CourseListItemDTO> list = courseMapper.toDTO(List.of());
+        List<CourseDTO> list = courseMapper.toDTO(List.of());
         assertTrue(list.isEmpty());
     }
 }
