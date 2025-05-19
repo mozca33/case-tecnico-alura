@@ -40,6 +40,11 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.CREATED).body(userMapper.toDTO(userService.findById(id)));
     }
 
+    @PutMapping("/{id}")
+    public ResponseEntity<UserDTO> updateUser(@PathVariable Long id, @RequestBody @Valid UserDTO userDTO) {
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(userMapper.toDTO(
+                        userService.updateUser(id, userMapper.toEntity(userDTO))));
     }
 
 }

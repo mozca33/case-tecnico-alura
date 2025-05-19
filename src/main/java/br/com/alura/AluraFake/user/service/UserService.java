@@ -41,4 +41,11 @@ public class UserService {
         return userRepository.findById(id)
                 .orElseThrow(() -> new UserException("User not found", HttpStatus.NOT_FOUND));
     }
+
+    public User updateUser(Long id, User updatedUser) {
+        User existingUser = findById(id);
+        existingUser.mergeFrom(updatedUser);
+
+        return userRepository.save(existingUser);
+    }
 }
