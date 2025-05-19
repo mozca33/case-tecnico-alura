@@ -44,6 +44,9 @@ public class UserService {
 
     public User updateUser(Long id, User updatedUser) {
         User existingUser = findById(id);
+
+        userValidator.validateUserForUpdate(updatedUser);
+
         existingUser.mergeFrom(updatedUser);
 
         return userRepository.save(existingUser);

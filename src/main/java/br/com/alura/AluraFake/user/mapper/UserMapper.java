@@ -50,7 +50,7 @@ public class UserMapper {
                 userDTO.name() != null ? userDTO.name() : "",
                 userDTO.email() != null ? userDTO.email() : "",
                 userDTO.role() != null ? userDTO.role() : null);
-        userService.validatePatch(user);
+        userService.validateUser(user);
         return user;
     }
 }

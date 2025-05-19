@@ -1,6 +1,7 @@
 package br.com.alura.AluraFake.user.controller;
 
 import br.com.alura.AluraFake.user.dtos.UserDTO;
+import br.com.alura.AluraFake.user.dtos.UserPatchDTO;
 import br.com.alura.AluraFake.user.mapper.UserMapper;
 import br.com.alura.AluraFake.user.service.UserService;
 import jakarta.validation.Valid;
@@ -47,4 +48,10 @@ public class UserController {
                         userService.updateUser(id, userMapper.toEntity(userDTO))));
     }
 
+    @PatchMapping("/{id}")
+    public ResponseEntity<UserDTO> patchUser(@PathVariable Long id, @RequestBody UserPatchDTO userDTO) {
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(userMapper.toDTO(
+                        userService.updateUser(id, userMapper.toEntity(userDTO))));
+    }
 }
