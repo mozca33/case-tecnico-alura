@@ -4,8 +4,8 @@ import java.util.List;
 
 import br.com.alura.AluraFake.course.model.Course;
 import br.com.alura.AluraFake.task.enums.Type;
+import br.com.alura.AluraFake.task.mapper.TaskOptionMapper;
 import br.com.alura.AluraFake.task.models.Task;
-import br.com.alura.AluraFake.task.models.TaskOption;
 
 public record TaskPatchDTO(
         String statement,
@@ -23,20 +23,18 @@ public record TaskPatchDTO(
     public Task toPartialEntity(Long id) {
         Task task = new Task(id, statement(), type(), order());
         if (options() != null) {
-            List<TaskOption> listOptions = options().stream()
-                    .map(opt -> new TaskOption(opt.option(), opt.isCorrect())).toList();
-            task.setOptions(listOptions);
+            task.setOptions(TaskOptionMapper.toEntityList(options()));
         }
+
         return task;
     }
 
     public Task toPartialEntity(Long id, Course course) {
         Task task = new Task(id, statement(), type(), order(), course);
         if (options() != null) {
-            List<TaskOption> listOptions = options().stream()
-                    .map(opt -> new TaskOption(opt.option(), opt.isCorrect())).toList();
-            task.setOptions(listOptions);
+            task.setOptions(TaskOptionMapper.toEntityList(options()));
         }
+
         return task;
     }
 }

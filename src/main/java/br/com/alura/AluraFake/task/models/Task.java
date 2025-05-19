@@ -166,7 +166,7 @@ public class Task {
 
     public Integer mergeFrom(Task other) {
         Integer newOrder = null;
-        if (other.getStatement().isBlank()) {
+        if (other.getStatement() != null && other.getStatement().isBlank()) {
             throw new TaskException("Statement cannot be blank.", HttpStatus.BAD_REQUEST);
         }
         if (other.getStatement() != null && (other.getStatement().length() < 4)) {
