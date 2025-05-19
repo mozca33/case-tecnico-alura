@@ -1,7 +1,6 @@
 package br.com.alura.AluraFake.course.controller;
 
 import br.com.alura.AluraFake.course.dto.CourseDTO;
-import br.com.alura.AluraFake.course.dto.CourseListItemDTO;
 import br.com.alura.AluraFake.course.enums.Status;
 import br.com.alura.AluraFake.course.exceptions.CourseException;
 import br.com.alura.AluraFake.course.mapper.CourseMapper;
@@ -61,11 +60,13 @@ class CourseControllerTest {
 
         @Test
         void createCourse_shouldReturnCreated_whenValidData() throws Exception {
-                CourseDTO inputDTO = new CourseDTO(null, "Java Basics", "A beginner course", "instructor@email.com");
+                CourseDTO inputDTO = new CourseDTO(null, "Java Basics", "A beginner course", "instructor@email.com",
+                                Status.BUILDING);
                 User user = new User("Instructor", "instructor@email.com", Role.INSTRUCTOR);
                 Course courseEntity = new Course("Java Basics", "A beginner course", user);
 
-                CourseDTO responseDTO = new CourseDTO(1L, "Java Basics", "A beginner course", "instructor@email.com");
+                CourseDTO responseDTO = new CourseDTO(1L, "Java Basics", "A beginner course", "instructor@email.com",
+                                Status.BUILDING);
 
                 when(courseMapper.toEntity(inputDTO)).thenReturn(courseEntity);
                 when(courseService.createCourse(any(Course.class))).thenReturn(courseEntity);
@@ -82,24 +83,12 @@ class CourseControllerTest {
         }
 
         @Test
-        void createCourse_shouldReturnBadRequest_whenCourseTitleInvalid() throws Exception {
-                CourseDTO invalidDTO = new CourseDTO(null, "", "123", "not-an-email");
-
-                mockMvc.perform(post("/course/new")
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .content(objectMapper.writeValueAsString(invalidDTO)))
-                                .andExpect(status().isBadRequest())
-                                .andExpect(jsonPath("$[0].field").isNotEmpty())
-                                .andExpect(jsonPath("$[0].message").isNotEmpty());
-        }
-
-        @Test
         void createCourse_shouldReturnBadRequest_whenMalformedJson() throws Exception {
                 String malformedJson = """
                                 {
                                         "title": "example",
                                         "description": "this is an example",
-                                        "emailInstructor": "valid@gmail.com"
+                                        "emailInstructor": "instructor@gmail.com"
 
                                 """;
                 ;
@@ -112,7 +101,7 @@ class CourseControllerTest {
 
         @Test
         void createCourse_shouldReturnBadRequest_whenInvalidCourse() throws Exception {
-                CourseDTO invalidDTO = new CourseDTO(null, "", "123", "not-an-email");
+                CourseDTO invalidDTO = new CourseDTO(null, "", "123", "not-an-email", Status.BUILDING);
 
                 mockMvc.perform(post("/course/new")
                                 .contentType(MediaType.APPLICATION_JSON)
@@ -129,7 +118,7 @@ class CourseControllerTest {
 
         @Test
         void createCourse_shouldReturnForbidden_whenUserIsNotInstructor() throws Exception {
-                CourseDTO dto = new CourseDTO(null, "Title", "Description", "student@email.com");
+                CourseDTO dto = new CourseDTO(null, "Title", "Description", "student@email.com", Status.BUILDING);
                 User user = mock(User.class);
 
                 when(userService.findByEmail(dto.emailInstructor())).thenReturn(Optional.of(user));
@@ -146,7 +135,8 @@ class CourseControllerTest {
 
         @Test
         void createCourse_shouldReturnNotFound_whenUserNotFound() throws Exception {
-                CourseDTO inputDTO = new CourseDTO(null, "Java Basics", "A beginner course", "missinguser@email.com");
+                CourseDTO inputDTO = new CourseDTO(null, "Java Basics", "A beginner course", "missinguser@email.com",
+                                Status.BUILDING);
                 User user = new User("fake", inputDTO.emailInstructor(), Role.INSTRUCTOR);
                 Course course = new Course(inputDTO.title(), inputDTO.description(), user);
 
@@ -165,8 +155,9 @@ class CourseControllerTest {
         @Test
         void createCourse_shouldReturnBadRequest_whenTitleTooLong() throws Exception {
 
-                String longTitle = "A".repeat(100);
-                CourseDTO dto = new CourseDTO(null, longTitle, "Descrição válida", "valid@email.com");
+                String longTitle = "A".repeat(81);
+                CourseDTO dto = new CourseDTO(null, longTitle, "Descrição válida", "instructor@email.com",
+                                Status.BUILDING);
 
                 mockMvc.perform(post("/course/new")
                                 .contentType(MediaType.APPLICATION_JSON)
@@ -180,7 +171,8 @@ class CourseControllerTest {
         void createCourse_shouldReturnBadRequest_whenDescriptionTooLong() throws Exception {
 
                 String longDescription = "D".repeat(256);
-                CourseDTO dto = new CourseDTO(null, "Título válido", longDescription, "valid@email.com");
+                CourseDTO dto = new CourseDTO(null, "Título válido", longDescription, "instructor@email.com",
+                                Status.BUILDING);
 
                 mockMvc.perform(post("/course/new")
                                 .contentType(MediaType.APPLICATION_JSON)
@@ -195,7 +187,7 @@ class CourseControllerTest {
         void createCourse_shouldReturnBadRequest_whenEmailTooLong() throws Exception {
 
                 String longEmail = "a".repeat(290) + "@email.com";
-                CourseDTO dto = new CourseDTO(null, "Título válido", "Descrição válida", longEmail);
+                CourseDTO dto = new CourseDTO(null, "Título válido", "Descrição válida", longEmail, Status.BUILDING);
 
                 mockMvc.perform(post("/course/new")
                                 .contentType(MediaType.APPLICATION_JSON)
@@ -206,7 +198,7 @@ class CourseControllerTest {
 
         @Test
         void createCourse_shouldReturnBadRequest_whenAllFieldsEmpty() throws Exception {
-                CourseDTO dto = new CourseDTO(null, "", "", "");
+                CourseDTO dto = new CourseDTO(null, "", "", "", null);
 
                 mockMvc.perform(post("/course/new")
                                 .contentType(MediaType.APPLICATION_JSON)
@@ -227,10 +219,12 @@ class CourseControllerTest {
 
         @Test
         void getAllCourses_shouldReturnOk_whenValidData() throws Exception {
-                CourseListItemDTO course1 = new CourseListItemDTO(new Course("Java", "Intro course", validUser));
-                CourseListItemDTO course2 = new CourseListItemDTO(new Course("Python", "Another course", validUser));
+                CourseDTO course1 = new CourseDTO(1L, "Java", "Intro course", validUser.getEmail(), Status.BUILDING);
+                CourseDTO course2 = new CourseDTO(2L, "Python", "Another course", validUser.getEmail(),
+                                Status.BUILDING);
+                List<CourseDTO> courseDTOList = List.of(course1, course2);
 
-                when(courseMapper.toDTO(Mockito.<List<Course>>any())).thenReturn(List.of(course1, course2));
+                when(courseMapper.toDTO(Mockito.<List<Course>>any())).thenReturn(courseDTOList);
 
                 mockMvc.perform(get("/course/all"))
                                 .andExpect(status().isOk())
@@ -255,7 +249,7 @@ class CourseControllerTest {
         @Test
         void getCourseById_shouldReturnOk_whenCourseExists() throws Exception {
                 Course course = new Course("Java", "Intro course", validUser);
-                CourseDTO dto = new CourseDTO(1L, "Java", "Intro course", "user@email.com");
+                CourseDTO dto = new CourseDTO(1L, "Java", "Intro course", "user@email.com", Status.BUILDING);
 
                 Mockito.when(courseService.getById(1L)).thenReturn(course);
                 Mockito.when(courseMapper.toDTO(course)).thenReturn(dto);
@@ -292,7 +286,7 @@ class CourseControllerTest {
                 course.setPublishedAt(LocalDateTime.now());
 
                 CourseDTO courseDTO = new CourseDTO(courseId, course.getTitle(), course.getDescription(),
-                                course.getInstructor().getEmail());
+                                course.getInstructor().getEmail(), course.getStatus());
 
                 when(courseService.publishCourse(courseId)).thenReturn(course);
                 when(courseMapper.toDTO(course)).thenReturn(courseDTO);
