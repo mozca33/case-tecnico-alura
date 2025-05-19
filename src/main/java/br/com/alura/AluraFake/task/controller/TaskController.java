@@ -25,7 +25,7 @@ import br.com.alura.AluraFake.task.service.TaskService;
 import jakarta.validation.Valid;
 
 @RestController
-@RequestMapping("/task")
+@RequestMapping("/tasks")
 public class TaskController {
 
         private final TaskService taskService;
@@ -36,19 +36,19 @@ public class TaskController {
                 this.taskMapper = taskMapper;
         }
 
-        @GetMapping("/{id}")
+        @GetMapping("/course/{id}")
         public ResponseEntity<List<BaseTaskDTO>> getTasksFromCourse(@PathVariable Long id) {
                 return ResponseEntity.ok().body(taskMapper.toDTO(taskService.findTasksByCourseId(id)));
         }
 
-        @PostMapping("/new/opentext")
+        @PostMapping("/opentext")
         public ResponseEntity<BaseTaskDTO> newOpenTextTask(@Valid @RequestBody OpenTextTaskDTO taskDTO) {
                 return ResponseEntity.status(HttpStatus.CREATED)
                                 .body(taskMapper.toDTO(taskService
                                                 .createTask(taskMapper.toEntity(taskDTO.withType(Type.OPEN_TEXT)))));
         }
 
-        @PostMapping("/new/singlechoice")
+        @PostMapping("/singlechoice")
         public ResponseEntity<BaseTaskDTO> newSingleChoiceTask(@Valid @RequestBody SingleChoiceTaskDTO taskDTO) {
                 return ResponseEntity.status(HttpStatus.CREATED)
                                 .body(taskMapper.toDTO(
@@ -56,7 +56,7 @@ public class TaskController {
                                                                 .toEntity(taskDTO.withType(Type.SINGLE_CHOICE)))));
         }
 
-        @PostMapping("/new/multiplechoice")
+        @PostMapping("/multiplechoice")
         public ResponseEntity<BaseTaskDTO> newMultipleChoice(@Valid @RequestBody MultipleChoiceTaskDTO taskDTO) {
                 return ResponseEntity.status(HttpStatus.CREATED)
                                 .body(taskMapper.toDTO(
