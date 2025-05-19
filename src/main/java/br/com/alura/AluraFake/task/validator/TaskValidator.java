@@ -7,6 +7,7 @@ import java.util.Set;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
+import br.com.alura.AluraFake.task.enums.Type;
 import br.com.alura.AluraFake.task.exceptions.TaskException;
 import br.com.alura.AluraFake.task.models.Task;
 import br.com.alura.AluraFake.task.models.TaskOption;
@@ -126,6 +127,7 @@ public class TaskValidator {
         }
 
         long correctCount = options.stream().filter(TaskOption::getCorrect).count();
+        long incorrectCount = options.size() - correctCount;
         if (correctCount < minCorrect || correctCount > maxCorrect) {
             if (minCorrect == MAX_SINGLE_CHOICE_CORRECT_OPTIONS && minCorrect == maxCorrect) {
                 throw new TaskException(
@@ -138,7 +140,20 @@ public class TaskValidator {
                     HttpStatus.BAD_REQUEST);
         }
 
+        if (task.getType() == Type.MULTIPLE_CHOICE && incorrectCount == 0) {
+            throw new TaskException(
+                    "Multiple choice tasks must have at least one incorrect option.",
+                    HttpStatus.BAD_REQUEST);
+        }
+
         for (TaskOption option : options) {
+            if (option.getTaskOption() == null || option.getTaskOption().isBlank()) {
+                throw new TaskException("Option field must not be blank", HttpStatus.BAD_REQUEST);
+            }
+
+            if (option.getCorrect() == null) {
+                throw new TaskException("Correct field must not be null.", HttpStatus.BAD_REQUEST);
+            }
 
             if (task.getStatement().equalsIgnoreCase(option.getTaskOption())) {
                 throw new TaskException("Option text cannot be the same as the task statement.",
