@@ -35,9 +35,11 @@ public class UserController {
         return ResponseEntity.ok().body(userMapper.toDTO(userService.findAll()));
     }
 
-    @GetMapping("/user/all")
-    public List<UserListItemDTO> listAllUsers() {
-        return userRepository.findAll().stream().map(UserListItemDTO::new).toList();
+    @GetMapping("/{id}")
+    public ResponseEntity<UserDTO> getUserById(@PathVariable Long id) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(userMapper.toDTO(userService.findById(id)));
+    }
+
     }
 
 }
