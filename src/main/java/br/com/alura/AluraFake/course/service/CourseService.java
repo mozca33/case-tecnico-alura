@@ -12,21 +12,21 @@ import br.com.alura.AluraFake.course.model.Course;
 import br.com.alura.AluraFake.course.repository.CourseRepository;
 import br.com.alura.AluraFake.course.validator.CourseValidator;
 import br.com.alura.AluraFake.task.exceptions.TaskException;
-import br.com.alura.AluraFake.user.validator.UserValidator;
+import br.com.alura.AluraFake.user.service.*;
 import jakarta.transaction.Transactional;
 
 @Service
 public class CourseService {
 
+    private final UserService userService;
+
     private final CourseRepository courseRepository;
     private final CourseValidator courseValidator;
-    private final UserValidator userValidator;
 
-    public CourseService(CourseRepository courseRepository, CourseValidator courseValidator,
-            UserValidator userValidator) {
+    public CourseService(CourseRepository courseRepository, CourseValidator courseValidator, UserService userService) {
         this.courseRepository = courseRepository;
         this.courseValidator = courseValidator;
-        this.userValidator = userValidator;
+        this.userService = userService;
     }
 
     @Transactional
@@ -35,7 +35,7 @@ public class CourseService {
             throw new CourseException("Course " + course.getTitle() + " already exists.", HttpStatus.CONFLICT);
         }
 
-        userValidator.validateUserIsInstructor(course.getInstructor());
+        userService.validateUserIsInstructor(course.getInstructor());
 
         return courseRepository.save(course);
     };
