@@ -22,4 +22,11 @@ public class BusinessExceptionHandler {
         return ResponseEntity.status(ex.getStatus())
                 .body(new ErrorResponseDTO(ex.getStatus(), ex.getMessage()));
     }
+
+    @ExceptionHandler(br.com.alura.AluraFake.user.exceptions.UserException.class)
+    public ResponseEntity<ErrorResponseDTO> handleUserBusinessValidation(
+            br.com.alura.AluraFake.user.exceptions.UserException ex) {
+        return ResponseEntity.status(ex.getStatus())
+                .body(new ErrorResponseDTO(ex.getStatus(), ex.getMessage()));
+    }
 }

@@ -66,8 +66,7 @@ public class CourseService {
     }
 
     public Course updateCourse(Long id, Course course) {
-        Course existingCourse = findByCourseId(id); // validar se é o mesmo antes de ir para o banco
-        // adicionar throw se der tempo
+        Course existingCourse = findByCourseId(id);
 
         courseValidator.validateCourseIsInBuildingStatus(existingCourse.getStatus());
 
