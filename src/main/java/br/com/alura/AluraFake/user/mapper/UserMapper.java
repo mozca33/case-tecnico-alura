@@ -47,8 +47,8 @@ public class UserMapper {
             return null;
         }
         User user = new User(
-                userDTO.name() != null ? userDTO.name() : "",
-                userDTO.email() != null ? userDTO.email() : "",
+                userDTO.name() != null ? userDTO.name() : null,
+                userDTO.email() != null ? userDTO.email() : null,
                 userDTO.role() != null ? userDTO.role() : null);
         userService.validateUser(user);
         return user;

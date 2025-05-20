@@ -39,12 +39,12 @@ public class User {
         return createdAt;
     }
 
-    public String getName() {
-        return name;
+    public Long getId() {
+        return id;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public String getName() {
+        return name;
     }
 
     public String getEmail() {
@@ -59,16 +59,20 @@ public class User {
         return role;
     }
 
+    public String getPassword() {
+        return password;
+    }
+
     public void setRole(Role role) {
         this.role = role;
     }
 
-    public boolean isInstructor() {
-        return Role.INSTRUCTOR.equals(this.role);
+    public void setName(String name) {
+        this.name = name;
     }
 
-    public String getPassword() {
-        return password;
+    public boolean isInstructor() {
+        return Role.INSTRUCTOR.equals(this.role);
     }
 
     public void mergeFrom(User updatedUser) {
