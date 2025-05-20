@@ -5,7 +5,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
 import br.com.alura.AluraFake.course.exceptions.CourseException;
-import br.com.alura.AluraFake.user.enums.Role;
 import br.com.alura.AluraFake.user.exceptions.UserException;
 import br.com.alura.AluraFake.user.models.User;
 
