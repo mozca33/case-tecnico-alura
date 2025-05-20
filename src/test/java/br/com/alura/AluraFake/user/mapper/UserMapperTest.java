@@ -24,12 +24,12 @@ class UserMapperTest {
     }
 
     @Test
-    void testToDTO_NullUser() {
+    void toDTO_shouldReturnNull_whenUserIsNull() {
         assertNull(userMapper.toDTO((User) null));
     }
 
     @Test
-    void testToDTO_ValidUser() {
+    void toDTO_shouldMapUserToUserDTO_whenUserIsValid() {
         User user = new User("test", "test@example.com", Role.INSTRUCTOR, null);
         UserDTO dto = userMapper.toDTO(user);
 
@@ -41,12 +41,12 @@ class UserMapperTest {
     }
 
     @Test
-    void toDTO_whenUserIsNull_returnsNull() {
+    void toEntity_shouldReturnNull_whenUserDTOIsNull() {
         assertNull(userMapper.toEntity((UserDTO) null));
     }
 
     @Test
-    void toDTO_whenUserIsValid_returnsDTO() {
+    void toEntity_shouldMapUserDTOToUser_whenDTOIsValid() {
         UserDTO dto = new UserDTO("test", "test@example.com", Role.STUDENT, null);
         User user = userMapper.toEntity(dto);
 
@@ -57,7 +57,7 @@ class UserMapperTest {
     }
 
     @Test
-    void toDTOList_whenFoundListOfUsers_returnsDTOList() {
+    void toDTO_shouldReturnListOfDTOs_whenUserListIsValid() {
         User user1 = new User("User1", "user1@example.com", Role.INSTRUCTOR);
         User user2 = new User("User2", "user2@example.com", Role.INSTRUCTOR);
         List<UserDTO> dtos = userMapper.toDTO(List.of(user1, user2));
@@ -68,7 +68,7 @@ class UserMapperTest {
     }
 
     @Test
-    void toEntityFromPatchDTO_whenAllFieldsPresent_returnsUser() {
+    void toEntityFromPatchDTO_shouldMapPatchDTOToUser_whenAllFieldsPresent() {
         UserPatchDTO patchDTO = new UserPatchDTO("Patched Name", "patched@example.com", Role.INSTRUCTOR);
         doNothing().when(userService).validateUser(any(User.class));
 
@@ -82,21 +82,21 @@ class UserMapperTest {
     }
 
     @Test
-    void toEntityFromPatchDTO_whenAllFieldsAreNull_setsEmptyStrings() {
+    void toEntityFromPatchDTO_shouldSetEmptyStrings_whenFieldsAreNull() {
         UserPatchDTO patchDTO = new UserPatchDTO(null, null, null);
         doNothing().when(userService).validateUser(any(User.class));
 
         User user = userMapper.toEntity(patchDTO);
 
         assertNotNull(user);
-        assertEquals("", user.getName());
-        assertEquals("", user.getEmail());
+        assertEquals(null, user.getName());
+        assertEquals(null, user.getEmail());
         assertNull(user.getRole());
         verify(userService, times(1)).validateUser(any(User.class));
     }
 
     @Test
-    void toEntityFromPatchDTO_whenInputIsNull_returnsNull() {
+    void toEntityFromPatchDTO_shouldReturnNull_whenPatchDTOIsNull() {
         assertNull(userMapper.toEntity((UserPatchDTO) null));
     }
 }

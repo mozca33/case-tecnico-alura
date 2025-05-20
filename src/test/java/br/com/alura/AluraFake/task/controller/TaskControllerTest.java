@@ -80,7 +80,7 @@ class TaskControllerTest {
 
                 when(taskMapper.toDTO(any(Task.class))).thenReturn(responseDTO);
 
-                mockMvc.perform(post("/task/new/multiplechoice")
+                mockMvc.perform(post("/tasks/multiplechoice")
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(requestDTO)))
                                 .andExpect(status().isCreated())
@@ -102,7 +102,7 @@ class TaskControllerTest {
                 when(taskService.findTasksByCourseId(courseId)).thenReturn(tasks);
                 when(taskMapper.toDTO(any(List.class))).thenReturn(List.of(dto));
 
-                mockMvc.perform(get("/task/{id}", courseId))
+                mockMvc.perform(get("/tasks/course/{id}", courseId))
                                 .andExpect(status().isOk())
                                 .andExpect(jsonPath("$", hasSize(1)))
                                 .andExpect(jsonPath("$[0].id").value(1L))
@@ -115,7 +115,7 @@ class TaskControllerTest {
                 when(taskService.findTasksByCourseId(courseId)).thenReturn(Collections.emptyList());
                 when(taskMapper.toDTO(any(List.class))).thenReturn(Collections.emptyList());
 
-                mockMvc.perform(get("/task/{id}", courseId))
+                mockMvc.perform(get("/tasks/course/{id}", courseId))
                                 .andExpect(status().isOk())
                                 .andExpect(jsonPath("$", hasSize(0)));
         }
@@ -127,7 +127,7 @@ class TaskControllerTest {
                                 .thenThrow(new TaskException("Course with id " + courseId + " not found.",
                                                 org.springframework.http.HttpStatus.NOT_FOUND));
 
-                mockMvc.perform(get("/task/{id}", courseId))
+                mockMvc.perform(get("/tasks/course/{id}", courseId))
                                 .andExpect(status().isNotFound())
                                 .andExpect(jsonPath("$.message").value("Course with id " + courseId + " not found."))
                                 .andExpect(jsonPath("$.status").value(HttpStatus.NOT_FOUND.toString()));
@@ -147,7 +147,7 @@ class TaskControllerTest {
                 BaseTaskDTO responseDTO = new OpenTextTaskDTO(1L, 1L, "Describe Java", 1, Type.OPEN_TEXT);
                 when(taskMapper.toDTO(any(Task.class))).thenReturn(responseDTO);
 
-                mockMvc.perform(post("/task/new/opentext")
+                mockMvc.perform(post("/tasks/opentext")
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(requestDTO)))
                                 .andExpect(status().isCreated())
@@ -160,7 +160,7 @@ class TaskControllerTest {
         void createOpenTextTask_shouldReturnBadRequest_whenInvalidInput() throws Exception {
                 OpenTextTaskDTO requestDTO = new OpenTextTaskDTO(null, null, "", 1, null);
 
-                mockMvc.perform(post("/task/new/opentext")
+                mockMvc.perform(post("/tasks/opentext")
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(requestDTO)))
                                 .andExpect(status().isBadRequest());
@@ -186,7 +186,7 @@ class TaskControllerTest {
                                 requestDTO.options());
                 when(taskMapper.toDTO(any(Task.class))).thenReturn(responseDTO);
 
-                mockMvc.perform(post("/task/new/singlechoice")
+                mockMvc.perform(post("/tasks/singlechoice")
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(requestDTO)))
                                 .andExpect(status().isCreated())
@@ -199,7 +199,7 @@ class TaskControllerTest {
         void createSingleChoiceTask_shouldReturnBadRequest_whenInvalidInput() throws Exception {
                 SingleChoiceTaskDTO requestDTO = new SingleChoiceTaskDTO(null, null, "", 1, null, null);
 
-                mockMvc.perform(post("/task/new/singlechoice")
+                mockMvc.perform(post("/tasks/singlechoice")
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(requestDTO)))
                                 .andExpect(status().isBadRequest());
@@ -209,7 +209,7 @@ class TaskControllerTest {
         void createMultipleChoiceTask_shouldReturnBadRequest_whenInvalidInput() throws Exception {
                 MultipleChoiceTaskDTO requestDTO = new MultipleChoiceTaskDTO(null, null, "", 1, null, null);
 
-                mockMvc.perform(post("/task/new/multiplechoice")
+                mockMvc.perform(post("/tasks/multiplechoice")
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(requestDTO)))
                                 .andExpect(status().isBadRequest());
@@ -229,7 +229,7 @@ class TaskControllerTest {
                 BaseTaskDTO responseDTO = new OpenTextTaskDTO(taskId, 1L, "Updated", 1, Type.OPEN_TEXT);
                 when(taskMapper.toDTO(any(Task.class))).thenReturn(responseDTO);
 
-                mockMvc.perform(put("/task/opentext/{id}", taskId)
+                mockMvc.perform(put("/tasks/opentext/{id}", taskId)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(requestDTO)))
                                 .andExpect(status().isOk())
@@ -247,7 +247,7 @@ class TaskControllerTest {
                                 .thenThrow(new TaskException("Task " + taskId + " not found.",
                                                 org.springframework.http.HttpStatus.NOT_FOUND));
 
-                mockMvc.perform(put("/task/opentext/{id}", taskId)
+                mockMvc.perform(put("/tasks/opentext/{id}", taskId)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(requestDTO)))
                                 .andExpect(status().isNotFound())
@@ -260,7 +260,7 @@ class TaskControllerTest {
                 Long taskId = 1L;
                 OpenTextTaskDTO requestDTO = new OpenTextTaskDTO(null, null, "", 1, null);
 
-                mockMvc.perform(put("/task/opentext/{id}", taskId)
+                mockMvc.perform(put("/tasks/opentext/{id}", taskId)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(requestDTO)))
                                 .andExpect(status().isBadRequest());
@@ -285,7 +285,7 @@ class TaskControllerTest {
                                 requestDTO.options());
                 when(taskMapper.toDTO(any(Task.class))).thenReturn(responseDTO);
 
-                mockMvc.perform(put("/task/singlechoice/{id}", taskId)
+                mockMvc.perform(put("/tasks/singlechoice/{id}", taskId)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(requestDTO)))
                                 .andExpect(status().isOk())
@@ -306,7 +306,7 @@ class TaskControllerTest {
                                 .thenThrow(new TaskException("Task " + taskId + " not found.",
                                                 org.springframework.http.HttpStatus.NOT_FOUND));
 
-                mockMvc.perform(put("/task/singlechoice/{id}", taskId)
+                mockMvc.perform(put("/tasks/singlechoice/{id}", taskId)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(requestDTO)))
                                 .andExpect(status().isNotFound())
@@ -320,7 +320,7 @@ class TaskControllerTest {
                 Long taskId = 1L;
                 SingleChoiceTaskDTO requestDTO = new SingleChoiceTaskDTO(null, null, "", 1, null, null);
 
-                mockMvc.perform(put("/task/singlechoice/{id}", taskId)
+                mockMvc.perform(put("/tasks/singlechoice/{id}", taskId)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(requestDTO)))
                                 .andExpect(status().isBadRequest());
@@ -346,7 +346,7 @@ class TaskControllerTest {
                                 requestDTO.options());
                 when(taskMapper.toDTO(any(Task.class))).thenReturn(responseDTO);
 
-                mockMvc.perform(put("/task/multiplechoice/{id}", taskId)
+                mockMvc.perform(put("/tasks/multiplechoice/{id}", taskId)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(requestDTO)))
                                 .andExpect(status().isOk())
@@ -368,7 +368,7 @@ class TaskControllerTest {
                                 .thenThrow(new TaskException("Task " + taskId + " not found.",
                                                 org.springframework.http.HttpStatus.NOT_FOUND));
 
-                mockMvc.perform(put("/task/multiplechoice/{id}", taskId)
+                mockMvc.perform(put("/tasks/multiplechoice/{id}", taskId)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(requestDTO)))
                                 .andExpect(status().isNotFound())
@@ -382,9 +382,36 @@ class TaskControllerTest {
                 Long taskId = 1L;
                 MultipleChoiceTaskDTO requestDTO = new MultipleChoiceTaskDTO(null, null, "", 1, null, null);
 
-                mockMvc.perform(put("/task/multiplechoice/{id}", taskId)
+                mockMvc.perform(put("/tasks/multiplechoice/{id}", taskId)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(requestDTO)))
+                                .andExpect(status().isBadRequest());
+        }
+
+        @Test
+        void updateOpenTextTask_shouldReturnBadRequest_whenNullRequestBody() throws Exception {
+                Long taskId = 1L;
+                mockMvc.perform(put("/tasks/opentext/{id}", taskId)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content("null"))
+                                .andExpect(status().isBadRequest());
+        }
+
+        @Test
+        void updateSingleChoiceTask_shouldReturnBadRequest_whenNullRequestBody() throws Exception {
+                Long taskId = 1L;
+                mockMvc.perform(put("/tasks/singlechoice/{id}", taskId)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content("null"))
+                                .andExpect(status().isBadRequest());
+        }
+
+        @Test
+        void updateMultipleChoiceTask_shouldReturnBadRequest_whenNullRequestBody() throws Exception {
+                Long taskId = 1L;
+                mockMvc.perform(put("/tasks/multiplechoice/{id}", taskId)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content("null"))
                                 .andExpect(status().isBadRequest());
         }
 
@@ -403,7 +430,7 @@ class TaskControllerTest {
                 BaseTaskDTO responseDTO = new OpenTextTaskDTO(taskId, 1L, "Patched", 1, Type.OPEN_TEXT);
                 when(taskMapper.toDTO(any(Task.class))).thenReturn(responseDTO);
 
-                mockMvc.perform(patch("/task/opentext/{id}", taskId)
+                mockMvc.perform(patch("/tasks/opentext/{id}", taskId)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(patchDTO)))
                                 .andExpect(status().isOk())
@@ -420,7 +447,7 @@ class TaskControllerTest {
                 when(taskService.updateTask(any(Task.class)))
                                 .thenThrow(new TaskException("Task " + taskId + " not found", HttpStatus.NOT_FOUND));
 
-                mockMvc.perform(patch("/task/opentext/{id}", taskId)
+                mockMvc.perform(patch("/tasks/opentext/{id}", taskId)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(patchDTO)))
                                 .andExpect(status().isNotFound())
@@ -437,7 +464,7 @@ class TaskControllerTest {
                 when(taskService.updateTask(any(Task.class)))
                                 .thenThrow(new TaskException("Statement cannot be blank.", HttpStatus.BAD_REQUEST));
 
-                mockMvc.perform(patch("/task/opentext/{id}", taskId)
+                mockMvc.perform(patch("/tasks/opentext/{id}", taskId)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(patchDTO)))
                                 .andExpect(status().isBadRequest())
@@ -460,7 +487,7 @@ class TaskControllerTest {
                 BaseTaskDTO responseDTO = new SingleChoiceTaskDTO(taskId, 1L, "Patched", 1, Type.SINGLE_CHOICE, null);
                 when(taskMapper.toDTO(any(Task.class))).thenReturn(responseDTO);
 
-                mockMvc.perform(patch("/task/singlechoice/{id}", taskId)
+                mockMvc.perform(patch("/tasks/singlechoice/{id}", taskId)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(patchDTO)))
                                 .andExpect(status().isOk())
@@ -477,7 +504,7 @@ class TaskControllerTest {
                 when(taskService.updateTask(any(Task.class)))
                                 .thenThrow(new TaskException("Task " + taskId + " not found", HttpStatus.NOT_FOUND));
 
-                mockMvc.perform(patch("/task/singlechoice/{id}", taskId)
+                mockMvc.perform(patch("/tasks/singlechoice/{id}", taskId)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(patchDTO)))
                                 .andExpect(status().isNotFound())
@@ -494,7 +521,7 @@ class TaskControllerTest {
                 when(taskService.updateTask(any(Task.class)))
                                 .thenThrow(new TaskException("Statement cannot be blank", HttpStatus.BAD_REQUEST));
 
-                mockMvc.perform(patch("/task/singlechoice/{id}", taskId)
+                mockMvc.perform(patch("/tasks/singlechoice/{id}", taskId)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(patchDTO)))
                                 .andExpect(status().isBadRequest());
@@ -516,7 +543,7 @@ class TaskControllerTest {
                                 null);
                 when(taskMapper.toDTO(any(Task.class))).thenReturn(responseDTO);
 
-                mockMvc.perform(patch("/task/multiplechoice/{id}", taskId)
+                mockMvc.perform(patch("/tasks/multiplechoice/{id}", taskId)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(patchDTO)))
                                 .andExpect(status().isOk())
@@ -534,7 +561,7 @@ class TaskControllerTest {
                                 .thenThrow(new TaskException("Task " + taskId + " not found.",
                                                 org.springframework.http.HttpStatus.NOT_FOUND));
 
-                mockMvc.perform(patch("/task/multiplechoice/{id}", taskId)
+                mockMvc.perform(patch("/tasks/multiplechoice/{id}", taskId)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(patchDTO)))
                                 .andExpect(status().isNotFound())
@@ -552,7 +579,7 @@ class TaskControllerTest {
                 when(taskService.updateTask(any(Task.class)))
                                 .thenThrow(new TaskException("Task " + taskId + " not found", HttpStatus.NOT_FOUND));
 
-                mockMvc.perform(patch("/task/multiplechoice/{id}", taskId)
+                mockMvc.perform(patch("/tasks/multiplechoice/{id}", taskId)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(patchDTO)))
                                 .andExpect(status().isNotFound())
@@ -563,7 +590,7 @@ class TaskControllerTest {
         @Test
         void deleteTask_shouldReturnNoContent_whenTaskDeleted() throws Exception {
                 Long taskId = 1L;
-                mockMvc.perform(delete("/task/{id}", taskId))
+                mockMvc.perform(delete("/tasks/{id}", taskId))
                                 .andExpect(status().isNoContent());
         }
 
@@ -574,7 +601,7 @@ class TaskControllerTest {
                                 org.springframework.http.HttpStatus.NOT_FOUND))
                                 .when(taskService).deleteById(taskId);
 
-                mockMvc.perform(delete("/task/{id}", taskId))
+                mockMvc.perform(delete("/tasks/{id}", taskId))
                                 .andExpect(status().isNotFound())
                                 .andExpect(jsonPath("$.message").value("Task with id " + taskId + " not found."))
                                 .andExpect(jsonPath("$.status").value(HttpStatus.NOT_FOUND.toString()));

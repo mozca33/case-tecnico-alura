@@ -47,7 +47,7 @@ class TaskValidatorTest {
     }
 
     @Test
-    void validateForCreate_shouldThrowIfTaskLimitReached() {
+    void validateForCreate_shouldThrowBadRequest_whenTaskLimitReached() {
         Task task = createTask(null, 1L, 1, false, false, null, "statement");
         when(taskRepository.countByCourseId(1L)).thenReturn(5);
 
@@ -57,7 +57,7 @@ class TaskValidatorTest {
     }
 
     @Test
-    void validateForCreate_shouldThrowIfOrderNotSequential() {
+    void validateForCreate_shouldThrowBadRequest_whenOrderIsNotSequential() {
         Task task = createTask(null, 1L, 2, false, false, null, "statement");
         when(taskRepository.countByCourseId(1L)).thenReturn(0);
         when(taskRepository.findTopByCourseIdAndOrder(1L, 1)).thenReturn(null);
@@ -68,7 +68,7 @@ class TaskValidatorTest {
     }
 
     @Test
-    void validateForCreate_shouldThrowIfStatementExists() {
+    void validateForCreate_shouldThrowConflict_whenStatementAlreadyExists() {
         Task task = createTask(null, 1L, 1, false, false, null, "statement");
         when(taskRepository.countByCourseId(1L)).thenReturn(0);
         when(taskRepository.findTopByCourseIdAndOrder(1L, 0)).thenReturn(mock(Task.class));
@@ -80,7 +80,7 @@ class TaskValidatorTest {
     }
 
     @Test
-    void validateForCreate_shouldThrowIfSingleChoiceOptionsInvalid() {
+    void validateForCreate_shouldThrowBadRequest_whenSingleChoiceOptionsCountIsInvalid() {
         List<TaskOption> options = Arrays.asList(
                 createOption("A", true));
         Task task = createTask(null, 1L, 1, true, false, options, "statement");
@@ -94,7 +94,7 @@ class TaskValidatorTest {
     }
 
     @Test
-    void validateForCreate_shouldThrowIfMultipleChoiceOptionsInvalid() {
+    void validateForCreate_shouldThrowBadRequest_whenMultipleChoiceOptionsCountIsInvalid() {
         List<TaskOption> options = Arrays.asList(
                 createOption("A", true),
                 createOption("B", false));
@@ -109,7 +109,7 @@ class TaskValidatorTest {
     }
 
     @Test
-    void validateForCreate_shouldThrowIfSingleChoiceCorrectOptionsInvalid() {
+    void validateForCreate_shouldThrowBadRequest_whenSingleChoiceHasInvalidCorrectOptionsCount() {
         List<TaskOption> options = Arrays.asList(
                 createOption("A", true),
                 createOption("B", true));
@@ -124,7 +124,7 @@ class TaskValidatorTest {
     }
 
     @Test
-    void validateForCreate_shouldThrowIfMultipleChoiceCorrectOptionsInvalid() {
+    void validateForCreate_shouldThrowBadRequest_whenMultipleChoiceHasInvalidCorrectOptionsCount() {
         List<TaskOption> options = Arrays.asList(
                 createOption("A", true),
                 createOption("B", false),
@@ -140,7 +140,7 @@ class TaskValidatorTest {
     }
 
     @Test
-    void validateForCreate_shouldThrowIfOptionTextEqualsStatement() {
+    void validateForCreate_shouldThrowBadRequest_whenOptionTextEqualsStatement() {
         List<TaskOption> options = Arrays.asList(
                 createOption("statement", true),
                 createOption("B", false));
@@ -155,7 +155,7 @@ class TaskValidatorTest {
     }
 
     @Test
-    void validateForCreate_shouldThrowIfDuplicateOptionText() {
+    void validateForCreate_shouldThrowBadRequest_whenDuplicateOptionTextFound() {
         List<TaskOption> options = Arrays.asList(
                 createOption("A", true),
                 createOption("a", false));
@@ -170,7 +170,7 @@ class TaskValidatorTest {
     }
 
     @Test
-    void validateForUpdate_shouldThrowIfOrderNotSequential() {
+    void validateForUpdate_shouldThrowBadRequest_whenOrderIsNotSequential() {
         Task task = createTask(2L, 1L, 2, false, false, null, "statement");
         when(taskRepository.findTopByCourseIdAndOrderAndIdNot(1L, 1, 2L)).thenReturn(null);
 
@@ -180,7 +180,7 @@ class TaskValidatorTest {
     }
 
     @Test
-    void validateForUpdate_shouldThrowIfStatementExists() {
+    void validateForUpdate_shouldThrowConflict_whenStatementAlreadyExists() {
         Task task = createTask(2L, 1L, 1, false, false, null, "statement");
         when(taskRepository.findTopByCourseIdAndOrderAndIdNot(1L, 0, 2L)).thenReturn(mock(Task.class));
         when(taskRepository.existsByCourseIdAndStatementAndIdNot(1L, "statement", 2L)).thenReturn(true);
@@ -191,7 +191,7 @@ class TaskValidatorTest {
     }
 
     @Test
-    void validatePositiveId_shouldThrowIfIdIsZeroOrNegative() {
+    void validatePositiveId_shouldThrowBadRequest_whenIdIsZeroOrNegative() {
         TaskException ex1 = assertThrows(TaskException.class, () -> validator.validatePositiveId(0L));
         assertEquals(HttpStatus.BAD_REQUEST, ex1.getStatus());
         assertTrue(ex1.getMessage().contains("Id should be a positive value"));
@@ -202,7 +202,7 @@ class TaskValidatorTest {
     }
 
     @Test
-    void validateForCreate_shouldPassForValidSingleChoice() {
+    void validateForCreate_shouldPass_whenSingleChoiceIsValid() {
         List<TaskOption> options = Arrays.asList(
                 createOption("A", true),
                 createOption("B", false));
@@ -215,7 +215,7 @@ class TaskValidatorTest {
     }
 
     @Test
-    void validateForCreate_shouldPassForValidMultipleChoice() {
+    void validateForCreate_shouldPass_whenMultipleChoiceIsValid() {
         List<TaskOption> options = Arrays.asList(
                 createOption("A", true),
                 createOption("B", true),

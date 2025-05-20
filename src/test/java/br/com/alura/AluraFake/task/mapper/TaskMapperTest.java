@@ -35,7 +35,7 @@ class TaskMapperTest {
     }
 
     @Test
-    void toDto_shouldMapTaskToTaskDto() {
+    void toDTO_whenTaskIsValid_shouldMapTaskToTaskDto() {
         BaseTaskDTO dto = taskMapper.toDTO(task);
 
         assertNotNull(dto);
@@ -47,7 +47,7 @@ class TaskMapperTest {
     }
 
     @Test
-    void toEntity_shouldMapTaskDtoToTask() {
+    void toEntity_whenDtoIsValid_shouldMapTaskDtoToTask() {
         when(courseService.getById(dto.courseId())).thenReturn(course);
         Task entity = taskMapper.toEntity(dto);
 
@@ -60,17 +60,17 @@ class TaskMapperTest {
     }
 
     @Test
-    void toDto_shouldReturnNull_whenTaskIsNull() {
+    void toDTO_whenTaskIsNull_shouldReturnNull() {
         assertNull(taskMapper.toDTO((Task) null));
     }
 
     @Test
-    void toEntity_shouldReturnNull_whenDtoIsNull() {
+    void toEntity_whenDtoIsNull_shouldReturnNull() {
         assertNull(taskMapper.toEntity(null, (BaseTaskDTO) null));
     }
 
     @Test
-    void toEntity_withId_shouldMapTaskDtoToTaskWithId() {
+    void toEntity_withId_whenDtoIsValid_shouldMapTaskDtoToTaskWithId() {
         when(courseService.getById(dto.courseId())).thenReturn(course);
         Task entity = taskMapper.toEntity(99L, dto);
 
@@ -83,12 +83,12 @@ class TaskMapperTest {
     }
 
     @Test
-    void toEntity_withId_shouldReturnNull_whenDtoIsNull() {
+    void toEntity_withId_whenDtoIsNull_shouldReturnNull() {
         assertNull(taskMapper.toEntity(1L, null));
     }
 
     @Test
-    void toDTO_shouldMapListOfTasksToListOfDTOs() {
+    void toDTO_whenListOfTasksIsValid_shouldMapListOfTasksToListOfDTOs() {
         Task task2 = new Task(2L, "Statement 2", Type.OPEN_TEXT, 2, course);
         var tasks = java.util.List.of(task, task2);
 
@@ -101,7 +101,7 @@ class TaskMapperTest {
     }
 
     @Test
-    void toPartialEntity_shouldMapTaskPatchDTOWIthoutCourseId() {
+    void toPartialEntity_whenPatchDtoWithoutCourseId_shouldMapTaskPatchDtoWithoutCourseId() {
         var patchDto = mock(br.com.alura.AluraFake.task.dto.TaskPatchDTO.class);
         when(patchDto.courseId()).thenReturn(null);
         when(patchDto.toPartialEntity(1L)).thenReturn(task);

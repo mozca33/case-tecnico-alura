@@ -51,7 +51,7 @@ class UserControllerTest {
     }
 
     @Test
-    void createUser_ShouldReturnCreatedUser() throws Exception {
+    void createUser_shouldReturnCreatedUser_whenValidUserIsProvided() throws Exception {
         User user = new User();
         when(userMapper.toEntity(any(UserDTO.class))).thenReturn(user);
         when(userService.createUser(any(User.class))).thenReturn(user);
@@ -66,7 +66,7 @@ class UserControllerTest {
     }
 
     @Test
-    void listAllUsers_ShouldReturnListOfUsers() throws Exception {
+    void listAllUsers_shouldReturnListOfUsers_whenUsersExist() throws Exception {
         User user = new User();
         when(userService.findAll()).thenReturn(Arrays.asList(user));
         when(userMapper.toDTO(anyList())).thenReturn(userDTOList);
@@ -77,7 +77,7 @@ class UserControllerTest {
     }
 
     @Test
-    void getUserById_ShouldReturnUser() throws Exception {
+    void getUserById_shouldReturnUser_whenUserExists() throws Exception {
         User user = new User();
         when(userService.findById(1L)).thenReturn(user);
         when(userMapper.toDTO(any(User.class))).thenReturn(userDTO);
@@ -88,7 +88,7 @@ class UserControllerTest {
     }
 
     @Test
-    void updateUser_ShouldReturnUpdatedUser() throws Exception {
+    void updateUser_shouldUpdateAndReturnUser_whenUserExists() throws Exception {
         User user = new User();
         when(userMapper.toEntity(any(UserDTO.class))).thenReturn(user);
         when(userService.updateUser(eq(1L), any(User.class))).thenReturn(user);
@@ -102,7 +102,7 @@ class UserControllerTest {
     }
 
     @Test
-    void patchUser_ShouldReturnPatchedUser() throws Exception {
+    void patchUser_shouldReturnPatchedUser_whenValidPatchIsProvided() throws Exception {
         User user = new User();
         when(userMapper.toEntity(any(UserPatchDTO.class))).thenReturn(user);
         when(userService.updateUser(eq(1L), any(User.class))).thenReturn(user);
@@ -116,7 +116,7 @@ class UserControllerTest {
     }
 
     @Test
-    void deleteUser_ShouldReturnNoContent() throws Exception {
+    void deleteUser_shouldReturnNoContent_whenUserExists() throws Exception {
         doNothing().when(userService).deleteUser(1L);
 
         mockMvc.perform(delete("/users/1"))

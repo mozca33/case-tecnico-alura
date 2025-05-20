@@ -1,6 +1,7 @@
 package br.com.alura.AluraFake.course.service;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 import java.util.List;
@@ -35,7 +36,7 @@ class CourseServiceTest {
     }
 
     @Test
-    void createCourse_shouldSaveAndReturnCourse_whenValid() {
+    void createCourse_whenValid_shouldSaveAndReturnCourse() {
         User instructor = mock(User.class);
         when(instructor.isInstructor()).thenReturn(true);
 
@@ -54,7 +55,7 @@ class CourseServiceTest {
     }
 
     @Test
-    void createCourse_shouldThrowConflictException_whenTitleExists() {
+    void createCourse_whenTitleExists_shouldThrowConflictException() {
         User instructor = mock(User.class);
         when(instructor.isInstructor()).thenReturn(true);
 
@@ -72,7 +73,7 @@ class CourseServiceTest {
     }
 
     @Test
-    void createCourse_shouldPropagateException_whenUserValidatorFails() {
+    void createCourse_whenUserValidatorFails_shouldPropagateException() {
         User instructor = mock(User.class);
         when(instructor.isInstructor()).thenReturn(true);
 
@@ -91,7 +92,7 @@ class CourseServiceTest {
     }
 
     @Test
-    void getById_shouldReturnCourse_whenFound() {
+    void getById_whenCourseExists_shouldReturnCourse() {
         User instructor = mock(User.class);
         when(instructor.isInstructor()).thenReturn(true);
 
@@ -106,14 +107,14 @@ class CourseServiceTest {
     }
 
     @Test
-    void getById_shouldThrowBadRequest_whenIdNotPositive() {
+    void getById_whenIdNotPositive_shouldThrowBadRequest() {
         TaskException ex = assertThrows(TaskException.class, () -> courseService.getById(0L));
         assertEquals(HttpStatus.BAD_REQUEST, ex.getStatus());
         assertTrue(ex.getMessage().contains("must be a positive"));
     }
 
     @Test
-    void getById_shouldThrowNotFound_whenCourseDoesNotExist() {
+    void getById_whenCourseDoesNotExist_shouldThrowNotFound() {
         when(courseRepository.findById(99L)).thenReturn(Optional.empty());
 
         CourseException ex = assertThrows(CourseException.class, () -> courseService.getById(99L));
@@ -124,7 +125,7 @@ class CourseServiceTest {
     }
 
     @Test
-    void getAllCourses_shouldReturnListOfCourses() {
+    void getAllCourses_whenCoursesExist_shouldReturnListOfCourses() {
         User instructor = mock(User.class);
         when(instructor.isInstructor()).thenReturn(true);
 
@@ -143,7 +144,7 @@ class CourseServiceTest {
     }
 
     @Test
-    void getAllCourses_shouldReturnEmptyList_whenNoCourses() {
+    void getAllCourses_whenNoCourses_shouldReturnEmptyList() {
         when(courseRepository.findAll()).thenReturn(List.of());
 
         List<Course> all = courseService.getAllCourses();
@@ -153,7 +154,7 @@ class CourseServiceTest {
     }
 
     @Test
-    void publishCourse_shouldSetStatusPublishedAndSave() {
+    void publishCourse_whenCourseExistsAndValid_shouldSetStatusPublishedAndSave() {
         User instructor = mock(User.class);
         when(instructor.isInstructor()).thenReturn(true);
 
@@ -173,7 +174,7 @@ class CourseServiceTest {
     }
 
     @Test
-    void publishCourse_shouldThrowNotFound_whenCourseNotExist() {
+    void publishCourse_whenCourseDoesNotExist_shouldThrowNotFound() {
         when(courseRepository.findById(99L)).thenReturn(Optional.empty());
 
         CourseException ex = assertThrows(CourseException.class, () -> courseService.publishCourse(99L));
@@ -186,7 +187,7 @@ class CourseServiceTest {
     }
 
     @Test
-    void publishCourse_shouldPropagateException_whenValidationFails() {
+    void publishCourse_whenValidationFails_shouldPropagateException() {
         User instructor = mock(User.class);
         when(instructor.isInstructor()).thenReturn(true);
 
@@ -204,7 +205,7 @@ class CourseServiceTest {
     }
 
     @Test
-    void updateCourse_shouldUpdateFieldsAndSave_whenValid() {
+    void updateCourse_whenValid_shouldUpdateFieldsAndSave() {
         User instructor = mock(User.class);
         when(instructor.isInstructor()).thenReturn(true);
 
@@ -233,7 +234,7 @@ class CourseServiceTest {
     }
 
     @Test
-    void updateCourse_shouldThrowException_whenCourseNotFound() {
+    void updateCourse_whenCourseNotFound_shouldThrowNotFoundException() {
         Course update = mock(Course.class);
         when(courseRepository.findById(1L)).thenReturn(Optional.empty());
 
@@ -243,7 +244,7 @@ class CourseServiceTest {
     }
 
     @Test
-    void updateCourse_shouldThrowException_whenTitleAlreadyExists() {
+    void updateCourse_whenTitleAlreadyExists_shouldThrowConflictException() {
         User instructor = mock(User.class);
         when(instructor.isInstructor()).thenReturn(true);
 
@@ -262,7 +263,7 @@ class CourseServiceTest {
     }
 
     @Test
-    void deleteCourse_shouldDelete_whenValid() {
+    void deleteCourse_whenCourseExistsAndValid_shouldDelete() {
         User instructor = mock(User.class);
         when(instructor.isInstructor()).thenReturn(true);
 
@@ -279,7 +280,7 @@ class CourseServiceTest {
     }
 
     @Test
-    void deleteCourse_shouldThrowException_whenCourseNotFound() {
+    void deleteCourse_whenCourseNotFound_shouldThrowNotFoundException() {
         when(courseRepository.findById(1L)).thenReturn(Optional.empty());
 
         CourseException ex = assertThrows(CourseException.class, () -> courseService.deleteCourse(1L));

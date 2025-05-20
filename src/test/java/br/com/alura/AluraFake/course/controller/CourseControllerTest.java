@@ -72,7 +72,7 @@ class CourseControllerTest {
                 when(courseService.createCourse(any(Course.class))).thenReturn(courseEntity);
                 when(courseMapper.toDTO(courseEntity)).thenReturn(responseDTO);
 
-                mockMvc.perform(post("/course/new")
+                mockMvc.perform(post("/courses")
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(inputDTO)))
                                 .andExpect(status().isCreated())
@@ -93,7 +93,7 @@ class CourseControllerTest {
                                 """;
                 ;
 
-                mockMvc.perform(post("/course/new")
+                mockMvc.perform(post("/courses")
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(malformedJson))
                                 .andExpect(status().isBadRequest());
@@ -103,7 +103,7 @@ class CourseControllerTest {
         void createCourse_shouldReturnBadRequest_whenInvalidCourse() throws Exception {
                 CourseDTO invalidDTO = new CourseDTO(null, "", "123", "not-an-email", Status.BUILDING);
 
-                mockMvc.perform(post("/course/new")
+                mockMvc.perform(post("/courses")
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(invalidDTO)))
                                 .andExpect(status().isBadRequest())
@@ -126,7 +126,7 @@ class CourseControllerTest {
                 when(courseMapper.toEntity(dto))
                                 .thenThrow(new CourseException("User is not an instructor", HttpStatus.FORBIDDEN));
 
-                mockMvc.perform(post("/course/new")
+                mockMvc.perform(post("/courses")
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(dto)))
                                 .andExpect(status().isForbidden())
@@ -145,7 +145,7 @@ class CourseControllerTest {
                 when(courseService.createCourse(any(Course.class)))
                                 .thenThrow(new CourseException("User not found", HttpStatus.NOT_FOUND));
 
-                mockMvc.perform(post("/course/new")
+                mockMvc.perform(post("/courses")
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(inputDTO)))
                                 .andExpect(status().isNotFound())
@@ -159,7 +159,7 @@ class CourseControllerTest {
                 CourseDTO dto = new CourseDTO(null, longTitle, "Descrição válida", "instructor@email.com",
                                 Status.BUILDING);
 
-                mockMvc.perform(post("/course/new")
+                mockMvc.perform(post("/courses")
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(dto)))
                                 .andExpect(status().isBadRequest())
@@ -174,7 +174,7 @@ class CourseControllerTest {
                 CourseDTO dto = new CourseDTO(null, "Título válido", longDescription, "instructor@email.com",
                                 Status.BUILDING);
 
-                mockMvc.perform(post("/course/new")
+                mockMvc.perform(post("/courses")
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(dto)))
                                 .andExpect(status().isBadRequest())
@@ -189,7 +189,7 @@ class CourseControllerTest {
                 String longEmail = "a".repeat(290) + "@email.com";
                 CourseDTO dto = new CourseDTO(null, "Título válido", "Descrição válida", longEmail, Status.BUILDING);
 
-                mockMvc.perform(post("/course/new")
+                mockMvc.perform(post("/courses")
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(dto)))
                                 .andExpect(status().isBadRequest())
@@ -200,7 +200,7 @@ class CourseControllerTest {
         void createCourse_shouldReturnBadRequest_whenAllFieldsEmpty() throws Exception {
                 CourseDTO dto = new CourseDTO(null, "", "", "", null);
 
-                mockMvc.perform(post("/course/new")
+                mockMvc.perform(post("/courses")
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(dto)))
                                 .andExpect(status().isBadRequest())
@@ -226,7 +226,7 @@ class CourseControllerTest {
 
                 when(courseMapper.toDTO(Mockito.<List<Course>>any())).thenReturn(courseDTOList);
 
-                mockMvc.perform(get("/course/all"))
+                mockMvc.perform(get("/courses"))
                                 .andExpect(status().isOk())
                                 .andExpect(jsonPath("$.size()").value(2))
                                 .andExpect(jsonPath("$[0].title").value("Java"))
@@ -241,7 +241,7 @@ class CourseControllerTest {
         void getAllCourses_shouldReturnEmptyList_whenNoCourses() throws Exception {
                 when(courseMapper.toDTO(Mockito.<List<Course>>any())).thenReturn(List.of());
 
-                mockMvc.perform(get("/course/all"))
+                mockMvc.perform(get("/courses"))
                                 .andExpect(status().isOk())
                                 .andExpect(jsonPath("$.size()").value(0));
         }
@@ -254,7 +254,7 @@ class CourseControllerTest {
                 Mockito.when(courseService.getById(1L)).thenReturn(course);
                 Mockito.when(courseMapper.toDTO(course)).thenReturn(dto);
 
-                mockMvc.perform(get("/course/1"))
+                mockMvc.perform(get("/courses/1"))
                                 .andExpect(status().isOk())
                                 .andExpect(jsonPath("$.id").value(1L));
         }
@@ -267,13 +267,13 @@ class CourseControllerTest {
                                 .thenThrow(new CourseException("Course with id " + nonExistentId + " not found.",
                                                 HttpStatus.NOT_FOUND));
 
-                mockMvc.perform(get("/course/{id}", nonExistentId))
+                mockMvc.perform(get("/courses/{id}", nonExistentId))
                                 .andExpect(status().isNotFound());
         }
 
         @Test
         void getCourseById_shouldReturnBadRequest_whenIdIsInvalid() throws Exception {
-                mockMvc.perform(get("/course/-1"))
+                mockMvc.perform(get("/courses/-1"))
                                 .andExpect(status().isBadRequest());
         }
 
@@ -291,7 +291,7 @@ class CourseControllerTest {
                 when(courseService.publishCourse(courseId)).thenReturn(course);
                 when(courseMapper.toDTO(course)).thenReturn(courseDTO);
 
-                mockMvc.perform(post("/course/{id}/publish", courseId)
+                mockMvc.perform(post("/courses/{id}/publish", courseId)
                                 .contentType(MediaType.APPLICATION_JSON))
                                 .andExpect(status().isOk())
                                 .andExpect(jsonPath("$.id").value(courseId))
@@ -309,14 +309,14 @@ class CourseControllerTest {
                 when(courseService.publishCourse(courseId))
                                 .thenThrow(new CourseException("Course already published", HttpStatus.BAD_REQUEST));
 
-                mockMvc.perform(post("/course/{id}/publish", courseId)
+                mockMvc.perform(post("/courses/{id}/publish", courseId)
                                 .contentType(MediaType.APPLICATION_JSON))
                                 .andExpect(status().isBadRequest());
         }
 
         @Test
         void publishCourse_shouldReturnBadRequest_whenIdIsInvalid() throws Exception {
-                mockMvc.perform(post("/course/{id}/publish", 0L)
+                mockMvc.perform(post("/courses/{id}/publish", 0L)
                                 .contentType(MediaType.APPLICATION_JSON))
                                 .andExpect(status().isBadRequest());
         }
@@ -329,7 +329,7 @@ class CourseControllerTest {
                                 .thenThrow(new CourseException("Course with id " + nonExistentId + " not found.",
                                                 HttpStatus.NOT_FOUND));
 
-                mockMvc.perform(post("/course/{id}/publish", nonExistentId)
+                mockMvc.perform(post("/courses/{id}/publish", nonExistentId)
                                 .contentType(MediaType.APPLICATION_JSON))
                                 .andExpect(status().isNotFound());
         }
