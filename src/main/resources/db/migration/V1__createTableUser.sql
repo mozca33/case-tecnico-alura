@@ -1,4 +1,4 @@
-CREATE TABLE User(
+CREATE TABLE IF NOT EXISTS User(
     id bigint(20) NOT NULL AUTO_INCREMENT,
     createdAt datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
     name varchar(50) NOT NULL,

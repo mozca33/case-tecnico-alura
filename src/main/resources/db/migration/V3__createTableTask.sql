@@ -1,10 +1,8 @@
-CREATE TABLE Task (
-    id BIGINT AUTO_INCREMENT PRIMARY KEY,
-    courseId BIGINT NOT NULL,
+CREATE TABLE IF NOT EXISTS Task (
+    id bigint(20) AUTO_INCREMENT PRIMARY KEY,
+    course_id bigint(20) NOT NULL,
     statement VARCHAR(255) NOT NULL,
     task_order INT NOT NULL,
-    type ENUM('OPEN_TEXT', 'MULTIPLE_CHOICE', 'SINGLE_CHOICE') NOT NULL,
-    FOREIGN KEY (courseId) REFERENCES Course(id)
+    type ENUM('OPEN_TEXT', 'MULTIPLE_CHOICE', 'SINGLE_CHOICE') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT 'OPEN_TEXT',
+    FOREIGN KEY (course_id) REFERENCES Course(id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC;
-
-CREATE INDEX idx_task_order ON Task (task_order);

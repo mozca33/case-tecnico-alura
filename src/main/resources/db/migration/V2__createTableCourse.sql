@@ -1,4 +1,4 @@
-CREATE TABLE Course (
+CREATE TABLE  IF NOT EXISTS Course (
     id bigint(20) NOT NULL AUTO_INCREMENT,
     createdAt datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
     title varchar(50) NOT NULL,
